@@ -6,7 +6,7 @@
 import { getMyTeam, setMyTeam, API_BASE_URL, TRACKS } from "./config.js";
 import { state } from "./state.js";
 import { escapeHtml, show } from "./utils.js";
-import { clearStrategyResults, setMyTeamScenesVisible, switchToMyTeam } from "./navigation.js";
+import { clearStrategyResults, switchToMyTeam } from "./navigation.js";
 import { teamsData } from "./teamsData.js";
 
 // Ensure global window.teamsData and actions are always available
@@ -54,7 +54,7 @@ export function renderTeamHero(name, isMyTeam) {
     if (driversSection) driversSection.style.display = "block";
 
     // Update navigation team indicator if present
-    const navTeamBadge = document.getElementById("navCurrentTeamText");
+    const navTeamBadge = document.getElementById("navCurrentTeamBadge") || document.getElementById("navCurrentTeamText");
     if (navTeamBadge && isMyTeam) {
         navTeamBadge.textContent = name;
     }

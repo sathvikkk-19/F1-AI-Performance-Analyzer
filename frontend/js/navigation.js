@@ -10,6 +10,16 @@ import { renderTeamHero, renderTeamsGrid } from "./teams.js";
 import { loadCareerDashboard } from "./career.js";
 import { loadUserProfile } from "./profile.js";
 
+function safeScrollToTop() {
+    if (typeof window !== "undefined" && typeof window.scrollTo === "function") {
+        try {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (e) {
+            window.scrollTo(0, 0);
+        }
+    }
+}
+
 export function goBack() {
     window.location.href = "index.html";
 }
@@ -62,6 +72,10 @@ function hideAllViews() {
     });
 }
 
+export function setMyTeamScenesVisible(visible) {
+    // Compatibility stub for legacy scene toggling
+}
+
 export function switchToMyTeam() {
     hideAllViews();
     setNavActive("my");
@@ -77,10 +91,7 @@ export function switchToMyTeam() {
         window.history.replaceState({}, "", "?view=my");
     }
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    safeScrollToTop();
 }
 
 export function switchToStrategy() {
@@ -106,10 +117,7 @@ export function switchToStrategy() {
         window.history.replaceState({}, "", "?view=strategy");
     }
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    safeScrollToTop();
 }
 
 export function switchToCareer() {
@@ -130,10 +138,7 @@ export function switchToCareer() {
         window.history.replaceState({}, "", "?view=career");
     }
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    safeScrollToTop();
 }
 
 export function switchToProfile() {
@@ -149,10 +154,7 @@ export function switchToProfile() {
         window.history.replaceState({}, "", "?view=profile");
     }
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    safeScrollToTop();
 }
 
 export function switchToOtherTeams() {
@@ -171,10 +173,7 @@ export function switchToOtherTeams() {
         window.history.replaceState({}, "", "?view=other");
     }
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    safeScrollToTop();
 }
 
 export function switchToAdmin() {
@@ -195,8 +194,5 @@ export function switchToAdmin() {
         window.history.replaceState({}, "", "?view=admin");
     }
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    safeScrollToTop();
 }
