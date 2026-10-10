@@ -1,0 +1,44 @@
+/* =========================================================
+   DRIVER CARDS & PROFILES
+========================================================= */
+
+.drivers-grid {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.driver-card {
+    width: 155px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.driver-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-bright);
+}
+
+.driver-card img {
+    width: 100%;
+    height: 175px;
+    object-fit: cover;
+    display: block;
+}
+
+.driver-card p {
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+}
+
+/* Drivers Size Lock in Immersive Mode */
+@media (min-width: 801px) {
+    body.immersive-dashboard #driversSection .drivers-grid { gap: 18px !important; }
+    body.immersive-dashboard #driversSection .driver-card { width: 155px !important; min-width: 155px !important; }
+    body.immersive-dashboard #driversSection .driver-card img { height: 175px !important; }
+}

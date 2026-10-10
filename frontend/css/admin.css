@@ -1,0 +1,288 @@
+/* =========================================================
+   ADMIN CONSOLE STYLESHEET
+   Formula 1 Operations & User Telemetry Monitoring
+========================================================= */
+
+.admin-section {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+    position: relative;
+    z-index: 5;
+}
+
+.admin-header {
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.admin-kicker {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.admin-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+}
+
+.admin-subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* ── KPI METRIC CARDS ── */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 32px;
+}
+
+.admin-kpi-card {
+    background: rgba(8, 12, 26, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 20px 22px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.admin-kpi-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 215, 0, 0.35);
+}
+
+.admin-kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--gold), var(--red));
+}
+
+.admin-kpi-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.admin-kpi-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 900;
+    color: #ffffff;
+    margin: 8px 0 4px;
+}
+
+.admin-kpi-sub {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── USER TABLE CONTAINER ── */
+.admin-table-card {
+    background: rgba(8, 12, 26, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.admin-table-toolbar {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-table-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #ffffff;
+    text-transform: uppercase;
+}
+
+.admin-search-input {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    padding: 8px 14px;
+    border-radius: 4px;
+    font: 600 13px 'Rajdhani', sans-serif;
+    outline: none;
+    width: 260px;
+    transition: border-color 0.2s;
+}
+
+.admin-search-input:focus {
+    border-color: var(--gold);
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+}
+
+.admin-table th {
+    padding: 14px 18px;
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* ── INSPECT MODAL ── */
+.admin-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.admin-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.admin-modal-card {
+    position: relative;
+    z-index: 2;
+    background: #080d1e;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    width: min(720px, 100%);
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8);
+}
+
+/* Top bar nav buttons */
+.btn-nav-admin {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 215, 0, 0.12) !important;
+    border: 1px solid rgba(255, 215, 0, 0.4) !important;
+    color: var(--gold) !important;
+}
+
+.btn-nav-admin:hover,
+.btn-nav-admin.active {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(225, 6, 0, 0.3)) !important;
+    border-color: var(--gold) !important;
+    color: #ffffff !important;
+}
+
+.nav-team-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    background: rgba(225, 6, 0, 0.12);
+    border: 1px solid rgba(225, 6, 0, 0.35);
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-team-badge:hover {
+    background: rgba(225, 6, 0, 0.25);
+    border-color: rgba(225, 6, 0, 0.6);
+}
+
+.nav-user-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-signout {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+}
+
+.btn-signout:hover {
+    border-color: #f87171;
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+}

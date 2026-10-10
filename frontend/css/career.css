@@ -1,0 +1,272 @@
+/* =========================================================
+   MY CAREER / CHAMPIONSHIP
+========================================================= */
+
+.career-panel {
+    display: none;
+    padding: 50px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.015);
+}
+
+.career-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.career-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.career-kicker {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.career-header h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+.career-header p {
+    margin-top: 6px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.career-start-btn {
+    padding: 12px 22px;
+    border: 1px solid rgba(225,6,0,0.55);
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--red), #a80000);
+    color: white;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s, opacity .2s;
+}
+
+.career-start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(225,6,0,0.30);
+}
+
+.career-start-btn:disabled {
+    opacity: .65;
+    cursor: wait;
+    transform: none;
+}
+
+.career-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.career-stat-card {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    text-align: center;
+}
+
+.career-stat-card span {
+    display: block;
+    color: var(--text-muted);
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.career-stat-card strong {
+    font-family: 'Orbitron', monospace;
+    font-size: 24px;
+    color: var(--gold);
+}
+
+.career-section {
+    margin-top: 28px;
+}
+
+.career-section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.career-comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+}
+
+.career-team-card {
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    transition: transform .2s, border-color .2s, background .2s;
+}
+
+.career-team-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-bright);
+    background: var(--surface-hover);
+}
+
+.career-team-card.mine {
+    border-color: rgba(225,6,0,0.55);
+    background: rgba(225,6,0,0.08);
+}
+
+.career-team-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: .7px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.career-team-points {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    color: var(--gold);
+}
+
+.career-team-meta {
+    margin-top: 7px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.career-team-gap {
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.62);
+}
+
+.career-gap-ahead { color: #5ee7a1; }
+.career-gap-behind { color: #ff7777; }
+.career-gap-level { color: var(--gold); }
+
+.pace-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.pace-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 9px;
+    text-transform: uppercase;
+}
+
+.pace-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 7px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.pace-circuit {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pace-result {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.pace-faster { color: #5ee7a1; }
+.pace-slower { color: #ff7777; }
+.pace-close { color: var(--gold); }
+.pace-neutral { color: var(--text-muted); }
+
+.career-empty {
+    padding: 16px;
+    border: 1px dashed rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+@media (max-width: 800px) {
+    .career-panel { padding: 35px 25px; }
+    .career-header { flex-direction: column; }
+    .career-stats { grid-template-columns: repeat(2, 1fr); }
+    .pace-columns { grid-template-columns: 1fr; }
+}
+
+
+/* =========================================================
+   CAREER V2
+========================================================= */
+.career-active-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px;padding:12px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,0.02)}
+.career-driver-chip{display:flex;flex-direction:column;min-width:180px;padding:9px 12px;border:1px solid rgba(255,215,0,.2);border-radius:8px;background:rgba(255,215,0,.04)}
+.career-driver-chip span,.upgrade-points span{font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;color:var(--text-muted)}
+.career-driver-chip strong{font-family:'Orbitron',monospace;font-size:12px;color:var(--gold);margin-top:4px}
+.career-tab-group{display:flex;gap:6px;margin-left:auto}
+.career-tab{padding:10px 14px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text-muted);font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;cursor:pointer}
+.career-tab.active{border-color:rgba(59,130,246,.55);color:white;background:rgba(59,130,246,.12)}
+.career-race-btn{background:linear-gradient(135deg,#2563eb,#0891b2);border-color:rgba(59,130,246,.55)}
+.career-race-view{margin-bottom:28px}
+.career-race-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px}
+.career-race-card{padding:18px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.career-race-card.primary{border-color:rgba(255,215,0,.35);background:rgba(255,215,0,.035)}
+.career-race-card .race-label{font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase}
+.career-race-card h3{font-family:'Orbitron',monospace;font-size:15px;margin-top:7px}
+.career-race-card .race-big{font-family:'Orbitron',monospace;font-size:25px;color:var(--gold);margin-top:12px}
+.career-race-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--text-muted)}
+.career-development-header{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px;border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:12px}
+.career-development-header>div:first-child{display:flex;flex-direction:column;gap:5px}.career-development-header strong{font-family:'Orbitron',monospace;font-size:11px}.career-development-header span{font-size:11px;color:var(--text-muted)}
+.career-reward{margin-top:10px;padding:9px 12px;border:1px solid rgba(94,231,161,.25);border-radius:8px;background:rgba(94,231,161,.05);color:#5ee7a1;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px}.career-reward strong{font-size:12px;margin-left:5px}.upgrade-points{text-align:right}.upgrade-points strong{display:block;color:var(--gold);font-family:'Orbitron',monospace;font-size:20px;margin-top:3px}
+.upgrade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.upgrade-card{padding:15px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.upgrade-card h3{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px}.upgrade-card p{font-size:11px;color:var(--text-muted);margin:7px 0 12px;line-height:1.4}
+.upgrade-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}.upgrade-bar>div{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:3px}.upgrade-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:11px}.upgrade-level{font-family:'Orbitron',monospace;font-size:9px;color:var(--cyan)}.upgrade-buy{padding:7px 10px;border:1px solid rgba(255,215,0,.25);border-radius:6px;background:rgba(255,215,0,.07);color:var(--gold);font-family:'Orbitron',monospace;font-size:7px;cursor:pointer}.upgrade-buy:disabled{opacity:.4;cursor:not-allowed}
+.career-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:25px}.career-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(7px)}.career-modal-card{position:relative;width:min(760px,100%);padding:28px;border:1px solid rgba(255,215,0,.3);border-radius:14px;background:#10121d;box-shadow:0 30px 80px rgba(0,0,0,.55)}.career-modal-kicker{font-family:'Orbitron',monospace;font-size:8px;letter-spacing:3px;color:var(--gold)}.career-modal-card h2{font-family:'Orbitron',monospace;font-size:22px;margin-top:8px}.career-modal-card>p{font-size:12px;color:var(--text-muted);line-height:1.6;margin:9px 0 20px}.career-driver-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.career-driver-option{padding:15px;border:1px solid var(--border);border-radius:9px;background:var(--surface);cursor:pointer}.career-driver-option:hover{border-color:rgba(59,130,246,.5)}.career-driver-option.selected{border-color:rgba(255,215,0,.65);background:rgba(255,215,0,.07)}.career-driver-option strong{font-family:'Orbitron',monospace;font-size:11px}.career-driver-option small{display:block;color:var(--text-muted);margin-top:6px;font-size:10px}.career-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.career-modal-cancel{padding:11px 18px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text-muted);font-family:'Orbitron',monospace;font-size:9px;cursor:pointer}
+@media(max-width:800px){.career-race-grid{grid-template-columns:1fr}.career-tab-group{margin-left:0}.career-driver-options{grid-template-columns:1fr}.career-development-header{align-items:flex-start;flex-direction:column}.upgrade-points{text-align:left}}
+
+
+/* =========================================================
+   CAREER PANEL OVERRIDES
+========================================================= */
+body.immersive-dashboard #careerPanel {
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+#sceneUpdates #careerUpdatesPanel {
+    display: block !important;
+}

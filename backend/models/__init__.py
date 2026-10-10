@@ -7,6 +7,7 @@ from backend.models.driver_performance import DriverPerformance
 from backend.models.upgrade import Upgrade
 from backend.models.team_development import TeamDevelopment
 from backend.models.user import User
+from backend.models.career import Career
 
 __all__ = [
     "Team",
@@ -17,5 +18,6 @@ __all__ = [
     "DriverPerformance",
     "Upgrade",
     "TeamDevelopment",
-    "User"
+    "User",
+    "Career"
 ]

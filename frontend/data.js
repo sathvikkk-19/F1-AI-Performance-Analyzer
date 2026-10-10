@@ -133,3 +133,7 @@ const teamsData = {
   }
 
 };
+
+if (typeof window !== "undefined") {
+  window.teamsData = teamsData;
+}

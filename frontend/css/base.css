@@ -1,0 +1,58 @@
+/* =========================================================
+   BASE & DESIGN TOKENS
+========================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --red: #e10600;
+    --gold: #ffd700;
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+
+    --dark: #020617;
+
+    --surface: rgba(255, 255, 255, 0.05);
+    --surface-hover: rgba(255, 255, 255, 0.09);
+
+    --border: rgba(255, 255, 255, 0.10);
+    --border-bright: rgba(255, 255, 255, 0.22);
+
+    --text-muted: rgba(255, 255, 255, 0.45);
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--dark);
+    color: white;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+body.immersive-dashboard {
+    overflow-x: hidden;
+    background: #050816;
+}

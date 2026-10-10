@@ -1,0 +1,211 @@
+/* =========================================================
+   HERO & CAR PRESENTATION
+========================================================= */
+
+.hero {
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 100px 60px 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.28) saturate(1.3);
+    z-index: 0;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to right,
+        rgba(2,6,23,0.8) 0%,
+        transparent 55%,
+        rgba(2,6,23,0.4) 100%
+    );
+    z-index: 1;
+}
+
+.hero-bottom-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 130px;
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--dark)
+    );
+    z-index: 2;
+}
+
+.hero-left {
+    position: relative;
+    z-index: 3;
+    max-width: 500px;
+}
+
+.team-badge {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.team-logo-box {
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border-bright);
+    background: rgba(255,255,255,0.08);
+    flex-shrink: 0;
+}
+
+.team-logo-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.team-tag {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.tag-my {
+    color: var(--red);
+}
+
+.tag-view {
+    color: var(--gold);
+}
+
+.hero h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(18px, 2.4vw, 34px);
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.hero-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+
+.hero-meta-item {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.hero-meta-item span {
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+}
+
+.hero-right {
+    position: relative;
+    z-index: 3;
+    flex-shrink: 0;
+}
+
+.hero-right img {
+    width: clamp(300px, 40vw, 580px);
+    filter: drop-shadow(0 20px 60px rgba(0,0,0,0.85));
+}
+
+/* Immersive Hero Overrides */
+body.immersive-dashboard .hero {
+    min-height: 100vh;
+    height: 100vh;
+    padding-top: 62px;
+    padding-left: clamp(28px, 6vw, 90px);
+    padding-right: clamp(28px, 6vw, 90px);
+    perspective: 1200px;
+    isolation: isolate;
+}
+
+body.immersive-dashboard .hero-bg {
+    transform: scale(1.02);
+    transform-origin: center center;
+    will-change: transform, filter, opacity;
+    transition: filter .15s linear, opacity .15s linear;
+}
+
+body.immersive-dashboard .hero-overlay {
+    background: linear-gradient(90deg,
+        rgba(2,6,23,.88) 0%,
+        rgba(2,6,23,.52) 44%,
+        rgba(2,6,23,.18) 72%,
+        rgba(2,6,23,.62) 100%);
+}
+
+body.immersive-dashboard .hero-right {
+    width: auto;
+    max-width: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    will-change: transform, opacity;
+}
+
+body.immersive-dashboard .hero-right img {
+    width: clamp(300px, 40vw, 580px);
+    max-width: 580px;
+}
+
+#sceneHero .hero {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    padding: 92px 7vw 55px;
+}
+
+#sceneHero .hero-bg {
+    filter: brightness(.34) saturate(1.2);
+}
+
+#sceneHero .hero-right img {
+    width: clamp(300px, 40vw, 580px);
+    max-width: 580px;
+    height: auto;
+}
+
+@media (min-width: 801px) {
+    body.immersive-dashboard .hero-right { width: auto !important; }
+    body.immersive-dashboard .hero-right img { width: clamp(300px, 40vw, 580px) !important; max-width: 580px !important; }
+}
+
+@media (max-width: 800px) {
+    .hero {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 30px;
+        padding: 100px 30px 50px;
+    }
+
+    .hero-right {
+        align-self: center;
+    }
+}
+
+@media (max-width: 900px) {
+    #sceneHero .hero {
+        padding: 90px 25px 45px;
+    }
+}

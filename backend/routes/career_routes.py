@@ -1,7 +1,8 @@
+from datetime import datetime
 from flask import Blueprint, jsonify, request, session
 
 from backend.extensions import db
-from backend.models import Circuit, Team
+from backend.models import Circuit, Team, User, Career
 from backend.services.season_engine import season_engine
 
 
@@ -13,7 +14,7 @@ career_bp = Blueprint(
 
 
 # -----------------------------------------------------------------------------
-# In-memory active careers
+# In-memory active careers cache & database sync
 # -----------------------------------------------------------------------------
 CAREERS = {}
 
@@ -62,8 +63,6 @@ UPGRADE_STEP = 2.0
 STARTING_DEVELOPMENT_POINTS = 20
 
 # Development points earned during a career.
-# Every completed race gives a base reward, with bonuses for scoring,
-# podiums and wins. This keeps development limited but renewable.
 BASE_RACE_DEVELOPMENT_POINTS = 3
 POINTS_FINISH_BONUS = 1
 PODIUM_DEVELOPMENT_BONUS = 2
@@ -71,13 +70,75 @@ WIN_DEVELOPMENT_BONUS = 3
 
 
 # -----------------------------------------------------------------------------
-# Helpers
+# Helpers & Database Persistence
 # -----------------------------------------------------------------------------
 def _career_key():
     user_id = session.get("user_id")
     if user_id is not None:
         return str(user_id)
     return "guest"
+
+
+def _get_career():
+    user_id = session.get("user_id")
+    if user_id:
+        try:
+            db_career = Career.query.filter_by(user_id=user_id).first()
+            if db_career and db_career.started:
+                c_dict = db_career.to_dict()
+                CAREERS[str(user_id)] = c_dict
+                return c_dict
+        except Exception as e:
+            pass
+    return CAREERS.get(_career_key())
+
+
+def _save_career(career_dict):
+    key = _career_key()
+    CAREERS[key] = career_dict
+
+    user_id = session.get("user_id")
+    if user_id and career_dict and career_dict.get("started"):
+        try:
+            db_career = Career.query.filter_by(user_id=user_id).first()
+            if not db_career:
+                db_career = Career(
+                    user_id=user_id,
+                    team_name=career_dict.get("team", ""),
+                    team_id=career_dict.get("team_id"),
+                    driver_id=career_dict.get("driver_id"),
+                    driver_name=career_dict.get("driver_name"),
+                    season=int(career_dict.get("season", 2026)),
+                    current_round=int(career_dict.get("current_round", 1)),
+                    started=bool(career_dict.get("started", True)),
+                    season_completed=bool(career_dict.get("season_completed", False)),
+                    development_points=int(career_dict.get("development_points", STARTING_DEVELOPMENT_POINTS)),
+                )
+                db.session.add(db_career)
+
+            db_career.team_name = career_dict.get("team", "")
+            db_career.team_id = career_dict.get("team_id")
+            db_career.driver_id = career_dict.get("driver_id")
+            db_career.driver_name = career_dict.get("driver_name")
+            db_career.season = int(career_dict.get("season", 2026))
+            db_career.current_round = int(career_dict.get("current_round", 1))
+            db_career.started = bool(career_dict.get("started", True))
+            db_career.season_completed = bool(career_dict.get("season_completed", False))
+            db_career.development_points = int(career_dict.get("development_points", STARTING_DEVELOPMENT_POINTS))
+            db_career.set_upgrades(career_dict.get("upgrades", {}))
+            db_career.set_baseline_car(career_dict.get("baseline_car", {}))
+            db_career.set_season_result(career_dict.get("season_result", {}))
+            db_career.set_last_reward(career_dict.get("last_development_reward"))
+            db_career.updated_at = datetime.utcnow()
+
+            user = User.query.get(user_id)
+            if user:
+                user.selected_team = career_dict.get("team", "")
+
+            db.session.commit()
+        except Exception as exc:
+            db.session.rollback()
+            print(f"Error persisting career to DB: {exc}")
 
 
 def _team_name(team):
@@ -415,12 +476,28 @@ def _build_dashboard(career, teams, circuits):
 # -----------------------------------------------------------------------------
 @career_bp.route("/drivers", methods=["GET"])
 def career_drivers():
-    team_name = request.args.get("team", "")
+    team_name = str(request.args.get("team", "")).strip()
+
+    if not team_name:
+        user_id = session.get("user_id")
+        if user_id:
+            user = User.query.get(user_id)
+            if user and user.selected_team:
+                team_name = user.selected_team
+
+    if not team_name:
+        active_career = _get_career()
+        if active_career and active_career.get("team"):
+            team_name = active_career.get("team")
+
+    if not team_name:
+        team_name = "Oracle Red Bull Racing"
+
     teams = Team.query.order_by(Team.id.asc()).all()
     team = _find_team(teams, team_name)
 
     if team is None:
-        return jsonify({"success": False, "message": "Selected team not found."}), 404
+        return jsonify({"success": False, "message": f"Selected team '{team_name}' not found."}), 404
 
     drivers = []
     for driver in getattr(team, "drivers", []) or []:
@@ -451,12 +528,20 @@ def start_career():
     driver_name = str(data.get("driver_name", "")).strip()
     season_year = int(data.get("season", 2026))
 
+    # If no team specified in payload, check user's selected team
+    if not team_name:
+        user_id = session.get("user_id")
+        if user_id:
+            user = User.query.get(user_id)
+            if user and user.selected_team:
+                team_name = user.selected_team
+
     teams = Team.query.order_by(Team.id.asc()).all()
     circuits = Circuit.query.order_by(Circuit.id.asc()).all()
     selected_team = _find_team(teams, team_name)
 
     if selected_team is None:
-        return jsonify({"success": False, "message": "Selected team not found."}), 404
+        return jsonify({"success": False, "message": f"Selected team '{team_name}' not found."}), 404
     if not circuits:
         return jsonify({"success": False, "message": "No circuits found."}), 500
 
@@ -469,11 +554,8 @@ def start_career():
     if selected_driver is None:
         return jsonify({"success": False, "message": "Select a valid driver before starting the career."}), 400
 
-    key = _career_key()
-
-    # If an older career exists in this process, restore its baseline car
-    # before creating a fresh championship.
-    old = CAREERS.get(key)
+    # If an older career exists, restore its baseline car before creating fresh championship
+    old = _get_career()
     if old and old.get("baseline_car"):
         _restore_car(selected_team, old["baseline_car"])
         try:
@@ -483,7 +565,7 @@ def start_career():
 
     baseline_car = _capture_car(selected_team)
 
-    CAREERS[key] = {
+    new_career = {
         "team": _team_name(selected_team),
         "team_id": getattr(selected_team, "id", None),
         "driver_id": getattr(selected_driver, "id", None),
@@ -502,10 +584,12 @@ def start_career():
         },
     }
 
+    _save_career(new_career)
+
     return jsonify({
         "success": True,
         "message": "Career started.",
-        "career": CAREERS[key],
+        "career": new_career,
     })
 
 
@@ -514,7 +598,7 @@ def start_career():
 # -----------------------------------------------------------------------------
 @career_bp.route("/status", methods=["GET"])
 def career_status():
-    career = CAREERS.get(_career_key())
+    career = _get_career()
     if career is None:
         return jsonify({"success": True, "started": False, "career": None})
     return jsonify({"success": True, "started": True, "career": career})
@@ -522,7 +606,7 @@ def career_status():
 
 @career_bp.route("/dashboard", methods=["GET"])
 def career_dashboard():
-    career = CAREERS.get(_career_key())
+    career = _get_career()
     if career is None:
         return jsonify({"success": True, "started": False, "career": None})
 
@@ -536,8 +620,7 @@ def career_dashboard():
 # -----------------------------------------------------------------------------
 @career_bp.route("/race", methods=["POST"])
 def run_career_race():
-    key = _career_key()
-    career = CAREERS.get(key)
+    career = _get_career()
 
     if career is None:
         return jsonify({
@@ -569,7 +652,7 @@ def run_career_race():
 
     if round_number > len(circuits):
         career["season_completed"] = True
-        CAREERS[key] = career
+        _save_career(career)
 
         return jsonify({
             "success": True,
@@ -670,7 +753,7 @@ def run_career_race():
         round_number >= len(circuits)
     )
 
-    CAREERS[key] = career
+    _save_career(career)
 
     dashboard = _build_dashboard(
         career,
@@ -696,8 +779,7 @@ def run_career_race():
 # -----------------------------------------------------------------------------
 @career_bp.route("/run", methods=["POST"])
 def run_career_season():
-    key = _career_key()
-    career = CAREERS.get(key)
+    career = _get_career()
 
     if career is None:
         return jsonify({"success": False, "message": "Start a career first."}), 400
@@ -714,7 +796,7 @@ def run_career_season():
     career["season_result"] = result
     career["current_round"] = len(result.get("races", [])) + 1
     career["season_completed"] = True
-    CAREERS[key] = career
+    _save_career(career)
 
     return jsonify({"success": True, "career": career})
 
@@ -724,7 +806,7 @@ def run_career_season():
 # -----------------------------------------------------------------------------
 @career_bp.route("/standings", methods=["GET"])
 def standings():
-    career = CAREERS.get(_career_key())
+    career = _get_career()
     if career is None:
         return jsonify({"success": False, "message": "No active career."}), 404
 
@@ -740,7 +822,7 @@ def standings():
 
 @career_bp.route("/teams", methods=["GET"])
 def team_comparison():
-    career = CAREERS.get(_career_key())
+    career = _get_career()
     if career is None:
         return jsonify({"success": False, "message": "No active career."}), 404
 
@@ -777,7 +859,7 @@ def team_comparison():
 
 @career_bp.route("/race-pace", methods=["GET"])
 def race_pace():
-    career = CAREERS.get(_career_key())
+    career = _get_career()
     if career is None:
         return jsonify({"success": False, "message": "No active career."}), 404
 
@@ -830,7 +912,7 @@ def race_pace():
 # -----------------------------------------------------------------------------
 @career_bp.route("/upgrades", methods=["GET"])
 def career_upgrades():
-    career = CAREERS.get(_career_key())
+    career = _get_career()
     if career is None:
         return jsonify({"success": False, "message": "Start a career first."}), 404
 
@@ -849,7 +931,7 @@ def career_upgrades():
 
 @career_bp.route("/upgrade", methods=["POST"])
 def career_upgrade():
-    career = CAREERS.get(_career_key())
+    career = _get_career()
     if career is None:
         return jsonify({"success": False, "message": "Start a career first."}), 404
 
@@ -885,7 +967,7 @@ def career_upgrade():
 
     career["development_points"] = points - cost
     career["upgrades"][component] = level + 1
-    CAREERS[_career_key()] = career
+    _save_career(career)
 
     try:
         db.session.commit()

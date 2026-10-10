@@ -1,0 +1,307 @@
+/* =========================================================
+   TOP NAV & CORE LAYOUT
+========================================================= */
+
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 24px;
+    background: rgba(2, 6, 23, 0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+}
+
+.top-bar-logo {
+    height: 26px;
+    filter: drop-shadow(0 0 6px rgba(225, 6, 0, 0.5));
+    margin-right: 6px;
+}
+
+.btn-nav {
+    padding: 8px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: rgba(255, 255, 255, 0.75);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-nav:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+    color: white;
+}
+
+.btn-nav.active {
+    background: rgba(225, 6, 0, 0.18);
+    border-color: rgba(225, 6, 0, 0.5);
+    color: #ff8080;
+}
+
+.top-bar-spacer {
+    margin-left: auto;
+}
+
+.top-bar-season {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    padding: 5px 12px;
+    border-radius: 4px;
+}
+
+/* =========================================================
+   SECTION TITLES & HEADERS
+========================================================= */
+
+.section {
+    padding: 50px;
+}
+
+.section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+/* =========================================================
+   SCROLL SCENES & WRAPPERS
+========================================================= */
+
+.scroll-scene {
+    position: relative;
+    min-height: calc(100vh - 62px);
+    height: auto;
+    margin-top: 0;
+    isolation: isolate;
+    overflow: hidden;
+    background: #020617;
+}
+
+.scroll-sticky {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: calc(100vh - 62px);
+    overflow: hidden;
+    isolation: isolate;
+    background: #020617;
+}
+
+.scroll-scene-media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.scroll-scene-media-frame {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    clip-path: none !important;
+    background: #020617;
+}
+
+.scroll-scene-media-frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transform: scale(1.04) !important;
+    transform-origin: center;
+    filter: brightness(.38) saturate(1.18) contrast(1.04);
+    will-change: transform, opacity;
+}
+
+.scroll-scene-media-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg,
+            rgba(2,6,23,.78) 0%,
+            rgba(2,6,23,.28) 48%,
+            rgba(2,6,23,.58) 100%),
+        linear-gradient(180deg,
+            rgba(2,6,23,.22) 0%,
+            rgba(2,6,23,.08) 48%,
+            rgba(2,6,23,.76) 100%);
+}
+
+.scroll-scene-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: rgba(2,6,23,.06);
+}
+
+.scroll-scene::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: #020617;
+    opacity: var(--scene-fade, 0);
+    transition: opacity .12s linear;
+}
+
+.scroll-scene-content {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    scrollbar-width: none;
+    opacity: 1;
+    transform: translate3d(0,0,0);
+    pointer-events: auto;
+    will-change: opacity, transform;
+    transition: opacity .45s ease, transform .65s cubic-bezier(.22,.61,.36,1);
+}
+
+.scroll-scene-content::-webkit-scrollbar { display: none; }
+.scroll-scene-content > * { min-height: 100%; }
+
+.scroll-scene-kicker {
+    position: absolute;
+    left: 5vw;
+    top: 28px;
+    z-index: 6;
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,.46);
+    text-transform: uppercase;
+    pointer-events: none;
+    opacity: .75;
+}
+
+#sceneHero .scroll-scene-media {
+    display: none;
+}
+
+#sceneHero .scroll-scene-content {
+    overflow: hidden;
+}
+
+#sceneDrivers .scroll-scene-content,
+#sceneStrategy .scroll-scene-content,
+#sceneCareer .scroll-scene-content,
+#sceneUpdates .scroll-scene-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#sceneDrivers #driversSection,
+#sceneStrategy #analyzeSection,
+#sceneCareer #careerPanel,
+#sceneUpdates #careerUpdatesPanel {
+    width: min(94vw, 1500px);
+    height: auto;
+    min-height: calc(100vh - 62px);
+    max-height: none;
+    overflow: visible;
+    scrollbar-width: none;
+    background: transparent;
+    padding-top: 78px;
+    padding-bottom: 36px;
+}
+
+#sceneDrivers #driversSection::-webkit-scrollbar,
+#sceneStrategy #analyzeSection::-webkit-scrollbar,
+#sceneCareer #careerPanel::-webkit-scrollbar,
+#sceneUpdates #careerUpdatesPanel::-webkit-scrollbar {
+    display: none;
+}
+
+#sceneDrivers .section-title,
+#sceneStrategy .section-title,
+#sceneCareer .career-section-title,
+#sceneUpdates .career-section-title {
+    text-shadow: 0 2px 16px rgba(0,0,0,.75);
+}
+
+/* =========================================================
+   RESPONSIVE LAYOUT
+========================================================= */
+
+@media (max-width: 900px) {
+    .scroll-scene {
+        min-height: calc(100vh - 62px);
+        height: auto;
+    }
+}
+
+@media (max-width: 800px) {
+    .section {
+        padding: 35px 25px;
+    }
+}
+
+@media (max-width: 520px) {
+    .top-bar {
+        padding: 0 12px;
+        gap: 5px;
+    }
+
+    .top-bar-logo {
+        height: 22px;
+    }
+
+    .btn-nav {
+        padding: 7px 9px;
+        font-size: 12px;
+    }
+
+    .top-bar-season {
+        display: none;
+    }
+}
+
+@keyframes cardIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

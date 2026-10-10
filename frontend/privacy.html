@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy | F1 2026 Performance Simulator</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --red: #e10600;
+  --gold: #ffd700;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --dark: #020617;
+  --card-bg: rgba(9, 14, 28, 0.75);
+  --border: rgba(255, 255, 255, 0.12);
+  --text-muted: rgba(255, 255, 255, 0.60);
+}
+body {
+  font-family: 'Rajdhani', sans-serif;
+  background: var(--dark);
+  color: #ffffff;
+  min-height: 100vh;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  height: 64px;
+  background: rgba(2, 6, 23, 0.94);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #fff;
+}
+.brand img {
+  height: 24px;
+}
+.brand span {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.nav-links {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: color 0.2s;
+  text-transform: uppercase;
+}
+.nav-link:hover {
+  color: #ffffff;
+}
+.btn-nav {
+  padding: 8px 16px;
+  background: rgba(225, 6, 0, 0.14);
+  border: 1px solid rgba(225, 6, 0, 0.45);
+  border-radius: 4px;
+  color: #ffffff;
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+.btn-nav:hover {
+  background: var(--red);
+  border-color: var(--red);
+}
+.container {
+  max-width: 960px;
+  margin: 48px auto;
+  padding: 0 24px;
+  flex: 1;
+}
+.doc-header {
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 24px;
+}
+.doc-kicker {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: var(--red);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(26px, 3.5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+.doc-meta {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(12px);
+}
+h2 {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  color: #ffffff;
+  margin-bottom: 14px;
+  letter-spacing: 1px;
+}
+p {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.82);
+  margin-bottom: 14px;
+}
+p:last-child {
+  margin-bottom: 0;
+}
+ul {
+  margin-left: 20px;
+  margin-bottom: 14px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 15px;
+}
+li {
+  margin-bottom: 6px;
+}
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 32px;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: rgba(2, 6, 23, 0.9);
+}
+.footer-links {
+  display: flex;
+  gap: 16px;
+}
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.footer-links a:hover {
+  color: #fff;
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="index.html" class="brand">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1">
+    <span>Telemetry Engine</span>
+  </a>
+  <nav class="nav-links">
+    <a href="index.html" class="nav-link">Overview</a>
+    <a href="login.html" class="nav-link">Sign In</a>
+    <a href="dashboard.html" class="btn-nav">Launch Simulator</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="doc-header">
+    <div class="doc-kicker">Compliance and Data Governance</div>
+    <h1>Privacy Policy</h1>
+    <div class="doc-meta">Effective Date: October 1, 2026 | Revision: 2026.4</div>
+  </div>
+
+  <div class="card">
+    <h2>1. Information We Collect</h2>
+    <p>The F1 2026 Performance Simulator collects operational data necessary for computational race strategy modeling and user authentication:</p>
+    <ul>
+      <li><strong>Account Credentials:</strong> Username and salted session credentials used to maintain simulator state and career progress.</li>
+      <li><strong>Telemetry Configuration Inputs:</strong> Circuit selections, downforce settings, drag configurations, tire degradation thresholds, and weather profiles input into the strategy engine.</li>
+      <li><strong>Local State and Preferences:</strong> Session cookies and local storage tokens stored directly on your client device to preserve active team selection and constructor dashboard state.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>2. Processing and Simulation Execution</h2>
+    <p>Simulation parameters are processed locally and through our secure computational backend API. Strategy calculations, tire wear progressions, and aerodynamic delta simulations execute transiently without persistent logging of identifiable telemetry requests.</p>
+    <p>We do not sell, rent, or commercialize telemetry configurations or individual race simulation queries to third-party advertising networks.</p>
+  </div>
+
+  <div class="card">
+    <h2>3. Cookies and Client-Side Storage</h2>
+    <p>This platform utilizes strict functional storage mechanisms:</p>
+    <ul>
+      <li><strong>Authentication Tokens:</strong> Secure HTTP cookies validating session integrity.</li>
+      <li><strong>Session State:</strong> In-browser memory caching for instantaneous circuit profile retrieval and career standings.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4. Data Security and Infrastructure</h2>
+    <p>Industry-standard TLS encryption is enforced across all communication channels between your browser and our computational endpoints. Session tokens are hashed and validated with strict CORS boundaries.</p>
+  </div>
+
+  <div class="card">
+    <h2>5. Contact and Inquiries</h2>
+    <p>For questions regarding telemetry data handling or account retention, contact the engineering desk at operations@f1-performance-engine.internal or open an issue on the project repository.</p>
+  </div>
+</main>
+
+<footer class="footer">
+  <div>F1 2026 Performance Simulator. Technical regulations compliance model.</div>
+  <div class="footer-links">
+    <a href="terms.html">Terms and Conditions</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="index.html">Home</a>
+  </div>
+</footer>
+
+</body>
+</html>
