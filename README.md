@@ -236,6 +236,24 @@ The application server will start on: **`http://127.0.0.1:5000`**
 
 ---
 
-## 🛡️ License & Disclaimer
+## 👤 Authorship & Ownership
 
-Formula 1, F1, and related marks are trademarks of Formula One Licensing B.V. This application is a fan-created research and simulation project built for educational, predictive, and telemetry analysis purposes.
+- **Primary Project Creator & Original Author**: **Sathvik K** ([@sathvikkk-19](https://github.com/sathvikkk-19))
+- **Email**: `bhatsathwik19@gmail.com`
+- **Co-Ownership**: Project ownership is shared exclusively between Sathvik K and a designated private project co-owner. Apart from these two individuals, no third party or organization may claim original authorship or claim to have created this project from scratch.
+
+---
+
+## 🛡️ License & Legal Terms
+
+This project is governed by a **Custom Educational, Non-Commercial & Source-Available License**. For the full legal text, please refer to the [`LICENSE`](LICENSE) file.
+
+### Summary of Terms:
+- **Educational & Recreational Use Only**: Developed strictly out of personal interest in Formula 1 motorsport engineering, academic exploration, and recreational simulation modeling.
+- **Anti-Plagiarism & Authorship Protection**: No individual or entity may copy, re-host, repackage, or present this software or its architecture as their own original work.
+- **Strict Attribution Requirement**: Any fork, reference, or study must maintain complete, unaltered credit to **Sathvik K (@sathvikkk-19)** and preserve the original copyright notice.
+- **Anti-Impersonation**: Misrepresenting oneself as the creator or maintainer of this codebase is strictly prohibited.
+- **Non-Commercial**: Commercial deployment, monetization, or sale is strictly forbidden without express written authorization.
+
+### Trademark Disclaimer
+"Formula 1", "F1", "FIA", and related constructor names and logos are trademarks of Formula One Licensing B.V. and the FIA. This application is an independent, non-commercial educational research simulator and is not officially associated with or endorsed by Formula One Licensing B.V. or the FIA.

@@ -1,0 +1,99 @@
+================================================================================
+CUSTOM EDUCATIONAL, NON-COMMERCIAL & SOURCE-AVAILABLE LICENSE
+================================================================================
+
+Copyright (c) 2026 Sathvik K (sathvikkk-19) and Designated Project Co-Owner.
+All Rights Reserved.
+
+Primary Project Author & Original Creator:
+Sathvik K (GitHub: @sathvikkk-19)
+Email: bhatsathwik19@gmail.com
+
+--------------------------------------------------------------------------------
+1. PRIMARY OWNERSHIP & INTELLECTUAL PROPERTY
+--------------------------------------------------------------------------------
+
+This project ("F1 2026 Performance Simulator & AI Strategy Engine"), including 
+all associated source code, algorithms, database schemas, mathematical simulation 
+models, user interface designs, stylesheets, scripts, and documentation, is the 
+original intellectual property of:
+
+    1. Sathvik K (sathvikkk-19) - Primary Creator & Original Author
+    2. Designated Project Co-Owner (Private Co-Author)
+
+Apart from the two authorized co-owners identified above, NO individual, entity, 
+institution, academic organization, or corporation may claim to be the author, 
+creator, or originator of this project, nor claim to have built, designed, or 
+engineered this software from scratch.
+
+--------------------------------------------------------------------------------
+2. PURPOSE & PERMITTED USE
+--------------------------------------------------------------------------------
+
+This software is developed and published strictly for:
+    (a) Educational and academic learning purposes;
+    (b) Personal recreation and motorsport simulation enthusiast exploration;
+    (c) Individual technical research, evaluation, and study of Formula 1 2026 
+        technical regulations, telemetry, and strategy modeling.
+
+Permission is hereby granted to any person obtaining a copy of this software and 
+associated documentation files to view, run locally, and study the codebase, 
+subject to the conditions and restrictions set forth in this License.
+
+--------------------------------------------------------------------------------
+3. PROHIBITED USES & RESTRICTIONS
+--------------------------------------------------------------------------------
+
+Under this License, the following actions are STRICTLY FORBIDDEN:
+
+    (a) NO PLAGIARISM OR FALSE AUTHORSHIP CLAIMS:
+        You MAY NOT take this repository, codebase, architecture, or assets, 
+        in whole or in part, and claim, represent, or imply that you are the 
+        original creator, author, or developer, or that it was built by you 
+        from scratch.
+
+    (b) NO IMPERSONATION:
+        You MAY NOT impersonate, misrepresent, or claim affiliation with 
+        Sathvik K (sathvikkk-19), the designated project co-owner, or the 
+        official maintainers of this project.
+
+    (c) NO REDISTRIBUTION WITHOUT UNALTERED ATTRIBUTION:
+        You MAY NOT re-upload, fork-rename, republish, or redistribute this 
+        software on any public or private platform, code hosting service, or 
+        portfolio without retaining this exact LICENSE, all copyright notices, 
+        and prominent, unedited attribution to the original author:
+        "Original Project by Sathvik K (@sathvikkk-19)".
+
+    (d) NO COMMERCIAL EXPLOITATION:
+        You MAY NOT sell, license, sub-license, monetize, bundle, charge fees for, 
+        or use this software or any derivative works thereof in any commercial 
+        product, paid service, Software-as-a-Service (SaaS), or commercial 
+        consulting activity without prior express written consent from Sathvik K.
+
+--------------------------------------------------------------------------------
+4. THIRD-PARTY TRADEMARKS & MOTORSPORT DISCLAIMER
+--------------------------------------------------------------------------------
+
+"Formula 1", "F1", "FIA", team names (such as Red Bull Racing, Ferrari, McLaren, 
+Mercedes, Aston Martin, and others), circuit names, and associated brand logos 
+are registered trademarks and intellectual properties of Formula One Licensing 
+B.V., the Fédération Internationale de l'Automobile (FIA), and their respective 
+constructor rights holders. 
+
+This project is an unofficial, independent fan-created simulation and educational 
+research application. It is not affiliated with, endorsed by, sponsored by, or 
+connected to Formula One Licensing B.V., the FIA, Formula One Group, or any of 
+the Formula 1 teams or drivers. All trademark references are used strictly under 
+fair use for educational, identification, and simulation simulation purposes.
+
+--------------------------------------------------------------------------------
+5. DISCLAIMER OF WARRANTY
+--------------------------------------------------------------------------------
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+AUTHORS OR COPYRIGHT HOLDERS (SATHVIK K OR CO-OWNER) BE LIABLE FOR ANY CLAIM, 
+DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+DEALINGS IN THE SOFTWARE.
