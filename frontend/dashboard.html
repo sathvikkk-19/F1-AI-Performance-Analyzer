@@ -18,17 +18,15 @@
 <link rel="stylesheet" href="css/other-teams.css">
 <link rel="stylesheet" href="css/motion.css">
 <link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/profile.css">
 </head>
 
 <body>
 
-
 <!-- =======================================================
-     TOP NAV
+     TOP NAVIGATION BAR
 ======================================================== -->
-
-<div class="top-bar">
-
+<nav class="top-bar">
     <img
         class="top-bar-logo"
         src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg"
@@ -43,7 +41,7 @@
     </button>
 
     <button
-        class="btn-nav"
+        class="btn-nav active"
         id="btnMyTeam"
         onclick="switchToMyTeam()"
     >
@@ -52,10 +50,34 @@
 
     <button
         class="btn-nav"
+        id="btnStrategy"
+        onclick="switchToStrategy()"
+    >
+        Strategy Analyzer
+    </button>
+
+    <button
+        class="btn-nav"
+        id="btnCareer"
+        onclick="switchToCareer()"
+    >
+        My Career
+    </button>
+
+    <button
+        class="btn-nav"
         id="btnOtherTeams"
         onclick="switchToOtherTeams()"
     >
-        Other Teams
+        Competitors
+    </button>
+
+    <button
+        class="btn-nav"
+        id="btnProfile"
+        onclick="switchToProfile()"
+    >
+        My Profile
     </button>
 
     <button
@@ -81,7 +103,13 @@
         <small style="opacity:0.65; font-size:10px;">(Change)</small>
     </button>
 
-    <div class="nav-user-pill" id="navUserBadge">
+    <div
+        class="nav-user-pill"
+        id="navUserBadge"
+        onclick="switchToProfile()"
+        style="cursor:pointer;"
+        title="Click to view driver profile"
+    >
         <span style="color:var(--text-muted); font-size:11px;">CALLSIGN:</span>
         <strong style="color:#ffffff;">Driver</strong>
     </div>
@@ -98,560 +126,451 @@
     <div class="top-bar-season">
         2026 Season
     </div>
-
-</div>
-
+</nav>
 
 <!-- =======================================================
-     PAGE 1 / CAR OVERVIEW
+     MAIN APPLICATION VIEWS
 ======================================================== -->
-<section class="scroll-scene" id="sceneHero" data-scroll-scene="1">
-    <div class="scroll-sticky">
-        <div class="scroll-scene-media" aria-hidden="true">
-            <div class="scroll-scene-media-frame">
-                <img id="sceneHeroMedia" src="" alt="">
+<main id="appMain">
+
+    <!-- ===================================================
+         VIEW 1: MY TEAM (CONSTRUCTOR, DRIVERS, ACTION PORTALS)
+    ==================================================== -->
+    <div id="viewMyTeam" class="view-container">
+
+        <!-- Hero Section -->
+        <section class="hero" id="heroSection">
+            <div class="hero-bg" id="heroBg"></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-bottom-fade"></div>
+
+            <div class="hero-left">
+                <div class="team-badge">
+                    <div class="team-logo-box">
+                        <img id="teamLogo" src="" alt="Logo">
+                    </div>
+                    <div>
+                        <div class="team-tag tag-my" id="tagMy">
+                            ● MY TEAM
+                        </div>
+                        <div class="team-tag tag-view" id="tagView" style="display:none;">
+                            ◎ VIEW ONLY
+                        </div>
+                        <button
+                            type="button"
+                            class="btn-return-constructors"
+                            id="btnReturnConstructors"
+                            onclick="switchToOtherTeams()"
+                            style="display:none;"
+                        >
+                            &larr; Return to Constructors Grid
+                        </button>
+                        <h1 id="teamName"></h1>
+                    </div>
+                </div>
+
+                <div class="hero-meta">
+                    <div class="hero-meta-item">
+                        Principal: <span id="principal"></span>
+                    </div>
+                    <div class="hero-meta-item">
+                        Engine: <span id="engine"></span>
+                    </div>
+                </div>
             </div>
-            <div class="scroll-scene-scrim"></div>
-        </div>
-        <div class="scroll-scene-kicker">01 &bull; CAR</div>
-        <div class="scroll-scene-content">
 
-<div class="scene-existing-section">
-<!-- =======================================================
-     HERO
-======================================================== -->
+            <div class="hero-right">
+                <img id="carImage" src="" alt="Car">
+            </div>
+        </section>
 
-<div
-    class="hero"
-    id="heroSection"
-    style="display:none;"
->
+        <!-- Driver Lineup Section -->
+        <section class="section" id="driversSection">
+            <div class="section-title">
+                2026 Driver Lineup
+            </div>
+            <div class="drivers-grid" id="drivers"></div>
+        </section>
 
-    <div
-        class="hero-bg"
-        id="heroBg"
-    ></div>
-
-    <div class="hero-overlay"></div>
-
-    <div class="hero-bottom-fade"></div>
-
-
-    <div class="hero-left">
-
-        <div class="team-badge">
-
-            <div class="team-logo-box">
-
-                <img
-                    id="teamLogo"
-                    src=""
-                    alt="Logo"
-                >
-
+        <!-- Dedicated Action Portals & Profile Access -->
+        <section class="section myteam-portal-section">
+            <div class="section-title">
+                Constructor Command &amp; Operations
             </div>
 
+            <div class="myteam-action-portals">
+                <!-- Action 1: Strategy Analyzer -->
+                <div class="portal-action-card portal-card-strategy">
+                    <div>
+                        <div class="portal-kicker">
+                            <span>🏎️</span> RACE TELEMETRY &amp; TACTICS
+                        </div>
+                        <h3 class="portal-title">Go to Strategy Analyzer</h3>
+                        <p class="portal-desc">
+                            Configure aerodynamic downforce, drag coefficients, tire compound degradation, and energy deployment. Run high-fidelity AI simulations to determine the optimal pit stop windows and race stints.
+                        </p>
+                    </div>
+                    <button type="button" class="portal-btn portal-btn-strategy" onclick="switchToStrategy()">
+                        GO TO STRATEGY ANALYZER &rarr;
+                    </button>
+                </div>
+
+                <!-- Action 2: My Team Career -->
+                <div class="portal-action-card portal-card-career">
+                    <div>
+                        <div class="portal-kicker">
+                            <span>🏆</span> FIA WORLD CHAMPIONSHIP
+                        </div>
+                        <h3 class="portal-title">My Team Career</h3>
+                        <p class="portal-desc">
+                            Select your official driver, simulate 2026 Grand Prix weekends, compete for World Drivers' and Constructors' titles, and earn Development Points (DP) to upgrade your car's engineering departments.
+                        </p>
+                    </div>
+                    <button type="button" class="portal-btn portal-btn-career" onclick="switchToCareer()">
+                        ENTER MY TEAM CAREER &rarr;
+                    </button>
+                </div>
+
+                <!-- Action 3: My Profile -->
+                <div class="portal-action-card portal-card-profile">
+                    <div>
+                        <div class="portal-kicker">
+                            <span>🪪</span> FIA SUPER LICENSE &amp; TELEMETRY
+                        </div>
+                        <h3 class="portal-title">My Profile</h3>
+                        <p class="portal-desc">
+                            Inspect your active constructor, track current championship standings and points, review total Development Points used across car upgrades, and update your driver callsign or email credentials.
+                        </p>
+                    </div>
+                    <button type="button" class="portal-btn portal-btn-profile" onclick="switchToProfile()">
+                        VIEW / EDIT PROFILE &rarr;
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+
+    <!-- ===================================================
+         VIEW 2: DEDICATED AI STRATEGY ANALYZER
+    ==================================================== -->
+    <div id="viewStrategy" class="view-container" style="display:none;">
+        <div class="view-page-header">
             <div>
+                <div class="view-kicker" style="color:var(--red);">02 &bull; ENGINEERING &amp; RACE SIMULATION</div>
+                <h2 class="view-title">AI Race Strategy Analyzer</h2>
+                <p class="view-subtitle">Simulate aerodynamic load, tire degradation models, and energy deployment for <strong id="strategyActiveTeamName" style="color:#ffffff;">Active Constructor</strong>.</p>
+            </div>
+            <button type="button" class="btn-nav" onclick="switchToMyTeam()">
+                &larr; Return to My Team
+            </button>
+        </div>
 
-                <div
-                    class="team-tag tag-my"
-                    id="tagMy"
-                >
-                    ●  MY TEAM
+        <section class="section" id="analyzeSection">
+            <div class="analyzer-grid">
+
+                <div class="analyzer-card">
+                    <label>Circuit</label>
+                    <select id="track"></select>
                 </div>
 
-                <div
-                    class="team-tag tag-view"
-                    id="tagView"
-                    style="display:none;"
-                >
-                    ◎  VIEW ONLY
+                <div class="analyzer-card">
+                    <label>Downforce Level</label>
+                    <select id="downforce">
+                        <option>High</option>
+                        <option selected>Medium</option>
+                        <option>Low</option>
+                    </select>
                 </div>
 
-                <button
-                    type="button"
-                    class="btn-return-constructors"
-                    id="btnReturnConstructors"
-                    onclick="switchToOtherTeams()"
-                    style="display:none;"
-                >
-                    &larr; Return to Constructors Grid
-                </button>
+                <div class="analyzer-card">
+                    <label>Drag Setting</label>
+                    <select id="drag">
+                        <option>High</option>
+                        <option selected>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
 
-                <h1 id="teamName"></h1>
+                <div class="analyzer-card">
+                    <label>Tire Degradation</label>
+                    <select id="tire">
+                        <option>High</option>
+                        <option selected>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+
+                <div class="analyzer-card">
+                    <label>Energy Efficiency</label>
+                    <select id="energy_efficiency">
+                        <option>High</option>
+                        <option selected>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+
+                <div class="analyzer-card">
+                    <label>Straight Line Speed</label>
+                    <select id="straight_line_speed">
+                        <option>High</option>
+                        <option selected>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+
+                <div class="analyzer-card">
+                    <label>Cornering</label>
+                    <select id="cornering">
+                        <option>High</option>
+                        <option selected>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+
+                <div class="analyzer-card">
+                    <label>Weather</label>
+                    <select id="weather">
+                        <option selected>Dry</option>
+                        <option>Wet</option>
+                        <option>Mixed</option>
+                    </select>
+                </div>
 
             </div>
 
-        </div>
-
-
-        <div class="hero-meta">
-
-            <div class="hero-meta-item">
-
-                Principal:
-                <span id="principal"></span>
-
-            </div>
-
-            <div class="hero-meta-item">
-
-                Engine:
-                <span id="engine"></span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="hero-right">
-
-        <img
-            id="carImage"
-            src=""
-            alt="Car"
-        >
-
-    </div>
-
-</div>
-
-</div>
-    </div>
-</section>
-
-
-<!-- =======================================================
-     PAGE 2 / DRIVER LINEUP
-======================================================== -->
-<section class="scroll-scene" id="sceneDrivers" data-scroll-scene="2">
-    <div class="scroll-sticky">
-        <div class="scroll-scene-media" aria-hidden="true">
-            <div class="scroll-scene-media-frame">
-                <img id="sceneDriversMedia" src="" alt="">
-            </div>
-            <div class="scroll-scene-scrim"></div>
-        </div>
-        <div class="scroll-scene-kicker">02 &bull; DRIVERS</div>
-        <div class="scroll-scene-content">
-
-<div class="scene-existing-section">
-
-<!-- =======================================================
-     DRIVERS
-======================================================== -->
-
-<div
-    class="section immersive-section"
-    id="driversSection"
-    style="display:none;"
->
-    <div class="visual-bg light-pillar-bg" aria-hidden="true"></div>
-
-    <div class="section-title">
-        Drivers
-    </div>
-
-    <div
-        class="drivers-grid"
-        id="drivers"
-    ></div>
-
-</div>
-
-</div>
-    </div>
-</section>
-
-
-<!-- =======================================================
-     PAGE 3 / STRATEGY SIMULATION
-======================================================== -->
-<section class="scroll-scene" id="sceneStrategy" data-scroll-scene="3">
-    <div class="scroll-sticky">
-        <div class="scroll-scene-media" aria-hidden="true">
-            <div class="scroll-scene-media-frame">
-                <img id="sceneStrategyMedia" src="" alt="">
-            </div>
-            <div class="scroll-scene-scrim"></div>
-        </div>
-        <div class="scroll-scene-kicker">03 &bull; AI STRATEGY</div>
-        <div class="scroll-scene-content">
-
-<div class="scene-existing-section">
-
-<!-- =======================================================
-     STRATEGY ANALYZER
-======================================================== -->
-
-<div
-    class="section immersive-section"
-    id="analyzeSection"
-    style="display:none;"
->
-    <div class="visual-bg light-pillar-bg" aria-hidden="true"></div>
-
-    <div class="section-title">
-        AI Strategy Analyzer
-    </div>
-
-
-    <div class="analyzer-grid">
-
-
-        <div class="analyzer-card">
-
-            <label>
-                Circuit
-            </label>
-
-            <select id="track"></select>
-
-        </div>
-
-
-        <div class="analyzer-card">
-
-            <label>
-                Downforce Level
-            </label>
-
-            <select id="downforce">
-
-                <option>High</option>
-
-                <option selected>
-                    Medium
-                </option>
-
-                <option>
-                    Low
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="analyzer-card">
-
-            <label>
-                Drag Setting
-            </label>
-
-            <select id="drag">
-
-                <option>High</option>
-
-                <option selected>
-                    Medium
-                </option>
-
-                <option>
-                    Low
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="analyzer-card">
-
-            <label>
-                Tire Degradation
-            </label>
-
-            <select id="tire">
-
-                <option>High</option>
-
-                <option selected>
-                    Medium
-                </option>
-
-                <option>
-                    Low
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="analyzer-card">
-
-            <label>
-                Energy Efficiency
-            </label>
-
-            <select id="energy_efficiency">
-
-                <option>High</option>
-
-                <option selected>
-                    Medium
-                </option>
-
-                <option>
-                    Low
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="analyzer-card">
-
-            <label>
-                Straight Line Speed
-            </label>
-
-            <select id="straight_line_speed">
-
-                <option>High</option>
-
-                <option selected>
-                    Medium
-                </option>
-
-                <option>
-                    Low
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="analyzer-card">
-
-            <label>
-                Cornering
-            </label>
-
-            <select id="cornering">
-
-                <option>High</option>
-
-                <option selected>
-                    Medium
-                </option>
-
-                <option>
-                    Low
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="analyzer-card">
-
-            <label>
-                Weather
-            </label>
-
-            <select id="weather">
-
-                <option selected>
-                    Dry
-                </option>
-
-                <option>
-                    Wet
-                </option>
-
-                <option>
-                    Mixed
-                </option>
-
-            </select>
-
-        </div>
-
-    </div>
-
-
-    <button
-        class="btn-generate"
-        id="generateBtn"
-        onclick="analyze()"
-    >
-
-        <div
-            class="spinner"
-            id="spinner"
-        ></div>
-
-        <span id="generateLabel">
-            Run Strategy Simulation
-        </span>
-
-    </button>
-
-
-    <div id="result"></div>
-
-</div>
-
-</div>
-    </div>
-</section>
-
-
-<!-- =======================================================
-     GENERATED STRATEGY / SIMULATION CARD
-======================================================== -->
-<section class="scroll-scene generated-strategy-scene" id="sceneGeneratedStrategy" data-scroll-scene="generated" style="display:none;">
-    <div class="scroll-sticky">
-        <div class="scroll-scene-kicker">03A &bull; GENERATED STRATEGY</div>
-        <div class="scroll-scene-content generated-strategy-content">
+            <button
+                class="btn-generate"
+                id="generateBtn"
+                onclick="analyze()"
+            >
+                <div class="spinner" id="spinner"></div>
+                <span id="generateLabel">Run Strategy Simulation</span>
+            </button>
+
+            <div id="result"></div>
+        </section>
+
+        <!-- Generated Strategy Mount Scene -->
+        <section class="generated-strategy-scene" id="sceneGeneratedStrategy" style="display:none; padding: 0 50px 80px;">
             <section id="generatedStrategyPanel" class="generated-strategy-panel">
-                <div class="visual-bg light-pillar-bg" aria-hidden="true"></div>
                 <div class="generated-strategy-inner">
                     <div class="stack-card-kicker">AI RACE STRATEGY</div>
                     <div class="stack-card-heading">Generated Strategy</div>
                     <div id="strategyResultStackMount"></div>
                 </div>
             </section>
-        </div>
+        </section>
     </div>
-</section>
 
-<!-- =======================================================
-     PAGE 4 / STANDINGS & RESULTS
-======================================================== -->
-<section class="scroll-scene" id="sceneCareer" data-scroll-scene="4">
-    <div class="scroll-sticky">
-        <div class="scroll-scene-media" aria-hidden="true">
-            <div class="scroll-scene-media-frame">
-                <img id="sceneCareerMedia" src="" alt="">
-            </div>
-            <div class="scroll-scene-scrim"></div>
-        </div>
-        <div class="scroll-scene-kicker">04 &bull; CHAMPIONSHIP</div>
-        <div class="scroll-scene-content">
 
-<!-- =======================================================
-     MY CAREER / CHAMPIONSHIP
-======================================================== -->
-
-<section id="careerPanel" class="career-panel immersive-section">
-    <div class="visual-bg light-pillar-bg" aria-hidden="true"></div>
-    <div class="career-inner">
-        <div class="career-page-block" id="careerPageChampionship">
-        <div class="career-header">
+    <!-- ===================================================
+         VIEW 3: DEDICATED MY TEAM CAREER
+    ==================================================== -->
+    <div id="viewCareer" class="view-container" style="display:none;">
+        <div class="view-page-header">
             <div>
-                <div class="career-kicker">2026 Championship Career</div>
-                <h2 id="careerTitle">MY TEAM CAREER</h2>
-                <p id="careerStatusText">Select Start Career to choose your driver.</p>
-                <div id="careerRewardText" class="career-reward" style="display:none;"></div>
+                <div class="view-kicker" style="color:var(--gold);">03 &bull; FIA FORMULA 1 WORLD CHAMPIONSHIP</div>
+                <h2 class="view-title">My Team Career Mode</h2>
+                <p class="view-subtitle">Compete across the 24-race 2026 calendar, earn Development Points, and engineer your championship-winning car.</p>
             </div>
-            <button id="startCareerButton" class="career-start-btn" onclick="startCareer()">START CAREER</button>
+            <button type="button" class="btn-nav" onclick="switchToMyTeam()">
+                &larr; Return to My Team
+            </button>
         </div>
 
-        <div id="careerActiveControls" class="career-active-controls" style="display:none;">
-            <div class="career-driver-chip">
-                <span>DRIVER</span>
-                <strong id="careerDriverName">--</strong>
+        <!-- Career Championship Dashboard -->
+        <section id="careerPanel" class="career-panel">
+            <div class="career-inner">
+                <div class="career-page-block" id="careerPageChampionship">
+                    <div class="career-header">
+                        <div>
+                            <div class="career-kicker">2026 Championship Career</div>
+                            <h2 id="careerTitle">MY TEAM CAREER</h2>
+                            <p id="careerStatusText">Select Start Career to choose your driver.</p>
+                            <div id="careerRewardText" class="career-reward" style="display:none;"></div>
+                        </div>
+                        <button id="startCareerButton" class="career-start-btn" onclick="startCareer()">START CAREER</button>
+                    </div>
+
+                    <div id="careerActiveControls" class="career-active-controls" style="display:none;">
+                        <div class="career-driver-chip">
+                            <span>DRIVER</span>
+                            <strong id="careerDriverName">--</strong>
+                        </div>
+                        <div class="career-tab-group">
+                            <button id="careerTabCurrent" class="career-tab active" onclick="switchCareerRaceTab('current')">CURRENT RACE</button>
+                            <button id="careerTabNext" class="career-tab" onclick="switchCareerRaceTab('next')">NEXT RACE</button>
+                        </div>
+                        <button id="runCareerRaceButton" class="career-start-btn career-race-btn" onclick="runCareerRace()" disabled>SIMULATE CURRENT RACE</button>
+                    </div>
+
+                    <div class="career-stats">
+                        <div class="career-stat-card"><span>DRIVER POSITION</span><strong id="careerDriverPosition">--</strong></div>
+                        <div class="career-stat-card"><span>DRIVER POINTS</span><strong id="careerPoints">0</strong></div>
+                        <div class="career-stat-card"><span>WINS</span><strong id="careerWins">0</strong></div>
+                        <div class="career-stat-card"><span>PODIUMS</span><strong id="careerPodiums">0</strong></div>
+                    </div>
+
+                    <div id="careerRaceView" class="career-race-view">
+                        <div class="career-empty">Start your career to see Current Race and Next Race championship comparisons.</div>
+                    </div>
+
+                    <div class="career-section">
+                        <div class="career-section-title">Race Points Comparison</div>
+                        <div id="careerTeamComparison" class="career-comparison-grid">
+                            <div class="career-empty">Start your career to load championship data.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="career-tab-group">
-                <button id="careerTabCurrent" class="career-tab active" onclick="switchCareerRaceTab('current')">CURRENT RACE</button>
-                <button id="careerTabNext" class="career-tab" onclick="switchCareerRaceTab('next')">NEXT RACE</button>
+        </section>
+
+        <!-- Car Development & Pace History -->
+        <section id="careerUpdatesPanel" class="career-panel" style="margin-top:20px; border-top:1px solid var(--border);">
+            <div class="career-inner">
+                <div class="career-page-block">
+                    <div class="career-section">
+                        <div class="career-section-title">Car Development &amp; R&amp;D Upgrades</div>
+                        <div class="career-development-header">
+                            <div>
+                                <strong>Upgrade your car</strong>
+                                <span>Every upgrade feeds the same car-performance values used by qualifying and the race simulator.</span>
+                            </div>
+                            <div class="upgrade-points">
+                                <span>DEVELOPMENT POINTS</span>
+                                <strong id="careerUpgradePoints">0</strong>
+                            </div>
+                        </div>
+                        <div id="careerUpgrades" class="upgrade-grid">
+                            <div class="career-empty">Start your career to unlock car development.</div>
+                        </div>
+                    </div>
+
+                    <div class="career-section">
+                        <div class="career-section-title">Race Pace History</div>
+                        <div class="pace-columns">
+                            <div>
+                                <div class="pace-title">Completed Races</div>
+                                <div id="completedRacePace"><div class="career-empty">No completed races yet.</div></div>
+                            </div>
+                            <div>
+                                <div class="pace-title">Upcoming Races</div>
+                                <div id="upcomingRacePace"><div class="career-empty">Upcoming expectations will appear here.</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button id="runCareerRaceButton" class="career-start-btn career-race-btn" onclick="runCareerRace()" disabled>SIMULATE CURRENT RACE</button>
-        </div>
-
-        <div class="career-stats">
-            <div class="career-stat-card"><span>DRIVER POSITION</span><strong id="careerDriverPosition">--</strong></div>
-            <div class="career-stat-card"><span>DRIVER POINTS</span><strong id="careerPoints">0</strong></div>
-            <div class="career-stat-card"><span>WINS</span><strong id="careerWins">0</strong></div>
-            <div class="career-stat-card"><span>PODIUMS</span><strong id="careerPodiums">0</strong></div>
-        </div>
-
-        <div id="careerRaceView" class="career-race-view">
-            <div class="career-empty">Start your career to see Current Race and Next Race championship comparisons.</div>
-        </div>
-
-        <div class="career-section">
-            <div class="career-section-title">Race Points Comparison</div>
-            <div id="careerTeamComparison" class="career-comparison-grid">
-                <div class="career-empty">Start your career to load championship data.</div>
-            </div>
-        </div>
-
-        </div>
+        </section>
     </div>
-</section>
-    </div>
-</div>
 
-</section>
+
+    <!-- ===================================================
+         VIEW 4: DEDICATED DRIVER PROFILE & REGISTRY
+    ==================================================== -->
+    <div id="viewProfile" class="view-container" style="display:none;">
+        <div class="view-page-header">
+            <div>
+                <div class="view-kicker" style="color:var(--cyan);">04 &bull; FIA SUPER LICENSE &amp; TELEMETRY</div>
+                <h2 class="view-title">My Profile &amp; Driver Registry</h2>
+                <p class="view-subtitle">Manage driver callsign, email credentials, active constructor, and championship Development Points.</p>
+            </div>
+            <button type="button" class="btn-nav" onclick="switchToMyTeam()">
+                &larr; Return to My Team
+            </button>
+        </div>
+
+        <section class="profile-section">
+            <div id="profileContainer">
+                <!-- Dynamically loaded by profile.js loadUserProfile() -->
+            </div>
+        </section>
+    </div>
+
+
+    <!-- ===================================================
+         VIEW 5: ALL CONSTRUCTORS (COMPETITORS)
+    ==================================================== -->
+    <div id="viewOtherTeams" class="view-container" style="display:none;">
+        <section class="other-teams-page" id="otherTeamsSection">
+            <div class="other-teams-inner">
+                <div class="constructors-header">
+                    <div class="constructors-kicker">2026 FIA Formula 1 World Championship</div>
+                    <h2 class="constructors-title">All Constructors &amp; Competitor Profiles</h2>
+                    <p class="constructors-subtitle">Select any constructor to inspect their technical specifications, team principal, power unit architecture, or set them as your active team.</p>
+                </div>
+                <div class="view-only-banner">
+                    <span>◎ Official 2026 Grid: Inspect competitor telemetry, or click "Select As My Team" on any constructor to switch your active car and race strategies!</span>
+                    <button type="button" class="btn-switch-my-team-banner" onclick="switchToMyTeam()">Return to My Team</button>
+                </div>
+                <div class="constructors-grid" id="constructorsGrid"></div>
+            </div>
+        </section>
+    </div>
+
+
+    <!-- ===================================================
+         VIEW 6: ADMIN CONSOLE (OPERATIONS)
+    ==================================================== -->
+    <div id="viewAdmin" class="view-container" style="display:none;">
+        <section class="admin-section" id="adminSection">
+            <div class="admin-header">
+                <div>
+                    <div class="admin-kicker">Formula 1 Telemetry Operations</div>
+                    <h2 class="admin-title">Admin Command Console</h2>
+                    <p class="admin-subtitle">Live overview of registered telemetry accounts, user constructors, active driver careers, and simulation logs.</p>
+                </div>
+                <button type="button" class="btn-nav" onclick="switchToMyTeam()" style="border:1px solid var(--border); padding:10px 18px; border-radius:4px; font-size:11px;">
+                    &larr; Return to Telemetry Simulator
+                </button>
+            </div>
+
+            <!-- Live KPI Metrics -->
+            <div class="admin-stats-grid" id="adminStatsCards"></div>
+
+            <!-- User & Career Registry Table -->
+            <div class="admin-table-card">
+                <div class="admin-table-toolbar">
+                    <div class="admin-table-title">User Accounts &amp; Career Activity</div>
+                    <input
+                        type="text"
+                        class="admin-search-input"
+                        id="adminUserSearch"
+                        placeholder="Search callsign, email, team..."
+                        oninput="filterAdminUsers(this.value)"
+                    >
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Callsign &amp; Email</th>
+                                <th>Role</th>
+                                <th>Selected Constructor</th>
+                                <th>Driver</th>
+                                <th>Championship Round</th>
+                                <th>Points / Results</th>
+                                <th>Development</th>
+                                <th>Telemetry</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUserTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+</main>
+
 
 <!-- =======================================================
-     PAGE 5 / R&D DEVELOPMENT
+     MODALS
 ======================================================== -->
-<section class="scroll-scene" id="sceneUpdates" data-scroll-scene="5">
-    <div class="scroll-sticky">
-        <div class="scroll-scene-media" aria-hidden="true">
-            <div class="scroll-scene-media-frame">
-                <img id="sceneUpdatesMedia" src="" alt="">
-            </div>
-            <div class="scroll-scene-scrim"></div>
-        </div>
-        <div class="scroll-scene-kicker">05 &bull; UPDATES & HISTORY</div>
-        <div class="scroll-scene-content">
 
-<section id="careerUpdatesPanel" class="career-panel immersive-section">
-    <div class="visual-bg light-pillar-bg" aria-hidden="true"></div>
-    <div class="career-inner">
-        <div class="career-page-block">
-
-        <div class="career-section">
-            <div class="career-section-title">Car Development</div>
-            <div class="career-development-header">
-                <div>
-                    <strong>Upgrade your car</strong>
-                    <span>Every upgrade feeds the same car-performance values used by qualifying and the race simulator.</span>
-                </div>
-                <div class="upgrade-points"><span>DEVELOPMENT POINTS</span><strong id="careerUpgradePoints">0</strong></div>
-            </div>
-            <div id="careerUpgrades" class="upgrade-grid">
-                <div class="career-empty">Start your career to unlock car development.</div>
-            </div>
-        </div>
-
-        <div class="career-section">
-            <div class="career-section-title">Race Pace History</div>
-            <div class="pace-columns">
-                <div>
-                    <div class="pace-title">Completed Races</div>
-                    <div id="completedRacePace"><div class="career-empty">No completed races yet.</div></div>
-                </div>
-                <div>
-                    <div class="pace-title">Upcoming Races</div>
-                    <div id="upcomingRacePace"><div class="career-empty">Upcoming expectations will appear here.</div></div>
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-</section>
-
-        </div>
-    </div>
-</section>
-    </div>
-</div>
-
-<!-- =======================================================
-     CAREER DRIVER SELECTION MODAL
-======================================================== -->
+<!-- Career Driver Selection Modal -->
 <div id="driverCareerModal" class="career-modal" style="display:none;">
     <div class="career-modal-backdrop" onclick="closeDriverCareerModal()"></div>
     <div class="career-modal-card">
@@ -666,9 +585,7 @@
     </div>
 </div>
 
-<!-- =======================================================
-     QUICK CONSTRUCTOR SELECTION MODAL
-======================================================== -->
+<!-- Quick Constructor Selection Modal -->
 <div id="teamSelectModal" class="career-modal" style="display:none;">
     <div class="career-modal-backdrop" onclick="closeTeamSelectModal()"></div>
     <div class="career-modal-card">
@@ -681,79 +598,6 @@
         </div>
     </div>
 </div>
-
-<!-- =======================================================
-     ALL CONSTRUCTORS (OTHER TEAMS)
-======================================================== -->
-
-<section class="other-teams-page" id="otherTeamsSection" style="display:none;">
-    <div class="other-teams-inner">
-        <div class="constructors-header">
-            <div class="constructors-kicker">2026 FIA Formula 1 World Championship</div>
-            <h2 class="constructors-title">All Constructors &amp; Competitor Profiles</h2>
-            <p class="constructors-subtitle">Select any constructor to inspect their technical specifications, team principal, power unit architecture, or set them as your active team.</p>
-        </div>
-        <div class="view-only-banner">
-            <span>◎ Official 2026 Grid: Inspect competitor telemetry, or click "Select As My Team" on any constructor to switch your active car and race strategies!</span>
-            <button type="button" class="btn-switch-my-team-banner" onclick="switchToMyTeam()">Return to My Team</button>
-        </div>
-        <div class="constructors-grid" id="constructorsGrid"></div>
-    </div>
-</section>
-
-<!-- =======================================================
-     ADMIN CONSOLE (OPERATIONS & USER REGISTRY)
-======================================================== -->
-<section class="admin-section" id="adminSection" style="display:none;">
-    <div class="admin-header">
-        <div>
-            <div class="admin-kicker">Formula 1 Telemetry Operations</div>
-            <h2 class="admin-title">Admin Command Console</h2>
-            <p class="admin-subtitle">Live overview of registered telemetry accounts, user constructors, active driver careers, and simulation logs.</p>
-        </div>
-        <button type="button" class="btn-nav" onclick="switchToMyTeam()" style="border:1px solid var(--border); padding:10px 18px; border-radius:4px; font-size:11px;">
-            &larr; Return to Telemetry Simulator
-        </button>
-    </div>
-
-    <!-- Live KPI Metrics -->
-    <div class="admin-stats-grid" id="adminStatsCards">
-        <!-- Injected by admin.js -->
-    </div>
-
-    <!-- User & Career Registry Table -->
-    <div class="admin-table-card">
-        <div class="admin-table-toolbar">
-            <div class="admin-table-title">User Accounts &amp; Career Activity</div>
-            <input
-                type="text"
-                class="admin-search-input"
-                id="adminUserSearch"
-                placeholder="Search callsign, email, team..."
-                oninput="filterAdminUsers(this.value)"
-            >
-        </div>
-        <div class="admin-table-wrap">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Callsign &amp; Email</th>
-                        <th>Role</th>
-                        <th>Selected Constructor</th>
-                        <th>Driver</th>
-                        <th>Championship Round</th>
-                        <th>Points / Results</th>
-                        <th>Development</th>
-                        <th>Telemetry</th>
-                    </tr>
-                </thead>
-                <tbody id="adminUserTableBody">
-                    <!-- Injected by admin.js -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
 
 <!-- Admin User Inspect Modal -->
 <div id="adminInspectModal" class="admin-modal" style="display:none;">
@@ -768,7 +612,9 @@
     </div>
 </div>
 
-<!-- Footer -->
+<!-- =======================================================
+     FOOTER
+======================================================== -->
 <footer style="padding: 24px 32px; background: rgba(2,6,23,0.95); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--text-muted); position: relative; z-index: 10;">
     <div>F1 2026 Performance Simulator &middot; 2026 Season Telemetry</div>
     <div style="display: flex; gap: 18px;">

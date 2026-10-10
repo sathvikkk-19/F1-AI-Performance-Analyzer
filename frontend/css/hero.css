@@ -3,11 +3,11 @@
 ========================================================= */
 
 .hero {
-    min-height: 88vh;
+    min-height: calc(85vh - 62px);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 100px 60px 60px;
+    padding: 50px 60px 40px;
     position: relative;
     overflow: hidden;
 }

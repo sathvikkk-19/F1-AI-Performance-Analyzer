@@ -1,44 +1,114 @@
 /* =========================================================
-   DRIVER CARDS & PROFILES
+   DRIVER CARDS & PROFILES - FORMULA 1 CYBER AESTHETIC
+   Matching index.html high-tech visual effects
 ========================================================= */
 
 .drivers-grid {
-    display: flex;
-    gap: 18px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
+    gap: 22px;
+    margin-top: 16px;
 }
 
 .driver-card {
-    width: 155px;
-    background: var(--surface);
+    background: rgba(9, 14, 30, 0.85);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.driver-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+    opacity: 0.8;
+    z-index: 2;
 }
 
 .driver-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--border-bright);
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.32);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 24px rgba(225, 6, 0, 0.2);
+}
+
+.driver-card-img-wrap {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    background: #020617;
 }
 
 .driver-card img {
     width: 100%;
-    height: 175px;
+    height: 100%;
     object-fit: cover;
+    object-position: top center;
     display: block;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.driver-card p {
-    padding: 10px 12px;
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.85);
+.driver-card:hover img {
+    transform: scale(1.05);
 }
 
-/* Drivers Size Lock in Immersive Mode */
-@media (min-width: 801px) {
-    body.immersive-dashboard #driversSection .drivers-grid { gap: 18px !important; }
-    body.immersive-dashboard #driversSection .driver-card { width: 155px !important; min-width: 155px !important; }
-    body.immersive-dashboard #driversSection .driver-card img { height: 175px !important; }
+.driver-card-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.driver-card-info {
+    padding: 16px 18px;
+    background: linear-gradient(180deg, rgba(9, 14, 30, 0.85) 0%, rgba(2, 6, 23, 0.98) 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.driver-card-kicker {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.driver-card-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 600px) {
+    .drivers-grid {
+        grid-template-columns: 1fr;
+    }
 }

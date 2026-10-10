@@ -1,5 +1,6 @@
 /* =========================================================
    NAVIGATION & VIEW CONTROLLERS
+   Multi-page segregated view switching for F1 Simulator
 ========================================================= */
 
 import { getMyTeam } from "./config.js";
@@ -7,6 +8,7 @@ import { state, resetStrategyState } from "./state.js";
 import { show } from "./utils.js";
 import { renderTeamHero, renderTeamsGrid } from "./teams.js";
 import { loadCareerDashboard } from "./career.js";
+import { loadUserProfile } from "./profile.js";
 
 export function goBack() {
     window.location.href = "index.html";
@@ -14,10 +16,17 @@ export function goBack() {
 
 export function setNavActive(mode) {
     const btnMy = document.getElementById("btnMyTeam");
+    const btnStrategy = document.getElementById("btnStrategy");
+    const btnCareer = document.getElementById("btnCareer");
     const btnOther = document.getElementById("btnOtherTeams");
+    const btnProfile = document.getElementById("btnProfile");
     const btnAdmin = document.getElementById("btnAdminView");
+
     if (btnMy) btnMy.classList.toggle("active", mode === "my");
+    if (btnStrategy) btnStrategy.classList.toggle("active", mode === "strategy");
+    if (btnCareer) btnCareer.classList.toggle("active", mode === "career");
     if (btnOther) btnOther.classList.toggle("active", mode === "other");
+    if (btnProfile) btnProfile.classList.toggle("active", mode === "profile");
     if (btnAdmin) btnAdmin.classList.toggle("active", mode === "admin");
 }
 
@@ -38,35 +47,107 @@ export function clearStrategyResults() {
     if (generatedScene) generatedScene.style.display = "none";
 }
 
-export function setMyTeamScenesVisible(visible) {
-    ["sceneHero", "sceneDrivers", "sceneStrategy", "sceneGeneratedStrategy", "sceneCareer", "sceneUpdates"].forEach(id => {
+function hideAllViews() {
+    const views = [
+        "viewMyTeam",
+        "viewStrategy",
+        "viewCareer",
+        "viewProfile",
+        "viewOtherTeams",
+        "viewAdmin"
+    ];
+    views.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.style.display = visible ? "block" : "none";
+        if (el) el.style.display = "none";
     });
 }
 
 export function switchToMyTeam() {
-    setMyTeamScenesVisible(true);
+    hideAllViews();
     setNavActive("my");
 
-    show("adminSection", false);
-    show("careerPanel", true);
-    loadCareerDashboard();
+    const view = document.getElementById("viewMyTeam");
+    if (view) view.style.display = "block";
 
-    show("otherTeamsSection", false);
     const activeTeam = getMyTeam();
     renderTeamHero(activeTeam, true);
 
-    show("heroSection", true, "flex");
-    const sceneHero = document.getElementById("sceneHero");
-    const sceneDrivers = document.getElementById("sceneDrivers");
-    if (sceneHero) sceneHero.style.display = "block";
-    if (sceneDrivers) sceneDrivers.style.display = "block";
+    // Update URL param without full reload
+    if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, "", "?view=my");
+    }
 
-    show("driversSection", true);
-    show("analyzeSection", true);
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
 
-    clearStrategyResults();
+export function switchToStrategy() {
+    hideAllViews();
+    setNavActive("strategy");
+
+    const view = document.getElementById("viewStrategy");
+    if (view) view.style.display = "block";
+
+    const analyzeSection = document.getElementById("analyzeSection");
+    if (analyzeSection) analyzeSection.style.display = "block";
+
+    const activeTeam = getMyTeam();
+    const strategyTeam = document.getElementById("strategyActiveTeamName");
+    if (strategyTeam) strategyTeam.textContent = activeTeam;
+
+    const trackSelect = document.getElementById("track");
+    if (trackSelect && !trackSelect.options.length) {
+        if (typeof window.loadTracks === "function") window.loadTracks();
+    }
+
+    if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, "", "?view=strategy");
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+export function switchToCareer() {
+    hideAllViews();
+    setNavActive("career");
+
+    const view = document.getElementById("viewCareer");
+    if (view) view.style.display = "block";
+
+    const careerPanel = document.getElementById("careerPanel");
+    if (careerPanel) careerPanel.style.display = "block";
+    const careerUpdates = document.getElementById("careerUpdatesPanel");
+    if (careerUpdates) careerUpdates.style.display = "block";
+
+    loadCareerDashboard();
+
+    if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, "", "?view=career");
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+export function switchToProfile() {
+    hideAllViews();
+    setNavActive("profile");
+
+    const view = document.getElementById("viewProfile");
+    if (view) view.style.display = "block";
+
+    loadUserProfile();
+
+    if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, "", "?view=profile");
+    }
 
     window.scrollTo({
         top: 0,
@@ -75,42 +156,47 @@ export function switchToMyTeam() {
 }
 
 export function switchToOtherTeams() {
-    setMyTeamScenesVisible(false);
+    hideAllViews();
     setNavActive("other");
-    show("adminSection", false);
-    show("careerPanel", false);
-    show("heroSection", false);
-    show("driversSection", false);
-    show("analyzeSection", false);
-    clearStrategyResults();
-    renderTeamsGrid();
-    show("otherTeamsSection", true);
 
-    const otherSection = document.getElementById("otherTeamsSection");
-    if (otherSection) {
-        otherSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    const view = document.getElementById("viewOtherTeams");
+    if (view) view.style.display = "block";
+
+    const otherTeamsSection = document.getElementById("otherTeamsSection");
+    if (otherTeamsSection) otherTeamsSection.style.display = "block";
+
+    renderTeamsGrid();
+
+    if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, "", "?view=other");
     }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
 export function switchToAdmin() {
-    setMyTeamScenesVisible(false);
+    hideAllViews();
     setNavActive("admin");
-    show("careerPanel", false);
-    show("heroSection", false);
-    show("driversSection", false);
-    show("analyzeSection", false);
-    show("otherTeamsSection", false);
-    clearStrategyResults();
 
-    show("adminSection", true);
+    const view = document.getElementById("viewAdmin");
+    if (view) view.style.display = "block";
 
-    // Call admin loader if registered
+    const adminSection = document.getElementById("adminSection");
+    if (adminSection) adminSection.style.display = "block";
+
     if (typeof window !== "undefined" && typeof window.loadAdminDashboard === "function") {
         window.loadAdminDashboard();
     }
 
-    const adminSection = document.getElementById("adminSection");
-    if (adminSection) {
-        adminSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, "", "?view=admin");
     }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }

@@ -48,6 +48,11 @@ export function renderTeamHero(name, isMyTeam) {
     if (tagViewEl) tagViewEl.style.display = isMyTeam ? "none" : "block";
     if (btnReturnConstructors) btnReturnConstructors.style.display = isMyTeam ? "none" : "inline-flex";
 
+    const heroSection = document.getElementById("heroSection");
+    if (heroSection) heroSection.style.display = "flex";
+    const driversSection = document.getElementById("driversSection");
+    if (driversSection) driversSection.style.display = "block";
+
     // Update navigation team indicator if present
     const navTeamBadge = document.getElementById("navCurrentTeamText");
     if (navTeamBadge && isMyTeam) {
@@ -55,10 +60,16 @@ export function renderTeamHero(name, isMyTeam) {
     }
 
     if (driversEl) {
-        driversEl.innerHTML = (team.drivers || []).map(driver => `
+        driversEl.innerHTML = (team.drivers || []).map((driver, idx) => `
             <div class="driver-card">
-                <img src="${driver.img}" alt="${driver.name}" loading="lazy">
-                <p>${driver.name}</p>
+                <div class="driver-card-img-wrap">
+                    <img src="${driver.img}" alt="${escapeHtml(driver.name)}" loading="lazy">
+                    <div class="driver-card-badge">CAR #${idx + 1}</div>
+                </div>
+                <div class="driver-card-info">
+                    <div class="driver-card-kicker">OFFICIAL 2026 PILOT</div>
+                    <div class="driver-card-name">${escapeHtml(driver.name)}</div>
+                </div>
             </div>
         `).join("");
     }
@@ -132,20 +143,14 @@ export function renderTeamsGrid() {
 }
 
 export function loadOtherTeam(name) {
-    setMyTeamScenesVisible(false);
     state.selectedOtherTeam = name;
-    show("otherTeamsSection", false);
     renderTeamsGrid();
     renderTeamHero(name, false);
 
-    const sceneHero = document.getElementById("sceneHero");
-    const sceneDrivers = document.getElementById("sceneDrivers");
-    if (sceneHero) sceneHero.style.display = "block";
-    if (sceneDrivers) sceneDrivers.style.display = "block";
-
-    show("heroSection", true, "flex");
-    show("driversSection", true);
-    show("analyzeSection", false);
+    const viewMyTeam = document.getElementById("viewMyTeam");
+    const otherTeams = document.getElementById("viewOtherTeams");
+    if (otherTeams) otherTeams.style.display = "none";
+    if (viewMyTeam) viewMyTeam.style.display = "block";
 
     window.scrollTo({
         top: 0,

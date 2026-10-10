@@ -3,7 +3,17 @@
 ========================================================= */
 
 import { API_BASE_URL, getMyTeam, setMyTeam } from "./config.js";
-import { goBack, setNavActive, switchToMyTeam, switchToOtherTeams, switchToAdmin, clearStrategyResults } from "./navigation.js";
+import {
+    goBack,
+    setNavActive,
+    switchToMyTeam,
+    switchToStrategy,
+    switchToCareer,
+    switchToProfile,
+    switchToOtherTeams,
+    switchToAdmin,
+    clearStrategyResults
+} from "./navigation.js";
 import { loadTracks, renderTeamsGrid, loadOtherTeam, renderTeamHero, selectActiveTeam } from "./teams.js";
 import { analyze, selectStrategy } from "./strategy.js";
 import {
@@ -17,6 +27,7 @@ import {
     buyCareerUpgrade,
     loadCareerDashboard
 } from "./career.js";
+import { loadUserProfile, handleProfileUpdate } from "./profile.js";
 import { loadAdminDashboard, filterAdminUsers, openAdminInspectModal, closeAdminInspectModal } from "./admin.js";
 import { initMotion } from "./motion.js";
 
@@ -26,9 +37,14 @@ import { initMotion } from "./motion.js";
 window.goBack = goBack;
 window.setNavActive = setNavActive;
 window.switchToMyTeam = switchToMyTeam;
+window.switchToStrategy = switchToStrategy;
+window.switchToCareer = switchToCareer;
+window.switchToProfile = switchToProfile;
 window.switchToOtherTeams = switchToOtherTeams;
 window.switchToAdmin = switchToAdmin;
 window.clearStrategyResults = clearStrategyResults;
+window.loadUserProfile = loadUserProfile;
+window.handleProfileUpdate = handleProfileUpdate;
 
 window.loadTracks = loadTracks;
 window.renderTeamsGrid = renderTeamsGrid;
@@ -127,6 +143,12 @@ async function boot() {
         switchToAdmin();
     } else if (view === "other") {
         switchToOtherTeams();
+    } else if (view === "strategy") {
+        switchToStrategy();
+    } else if (view === "career") {
+        switchToCareer();
+    } else if (view === "profile") {
+        switchToProfile();
     } else {
         switchToMyTeam();
     }

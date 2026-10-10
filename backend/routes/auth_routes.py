@@ -235,6 +235,128 @@ def select_team():
     })
 
 
+@auth_bp.route("/profile", methods=["GET", "POST", "PUT"])
+def user_profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({
+            "success": False,
+            "message": "Authentication required."
+        }), 401
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"success": False, "message": "User not found."}), 404
+
+    if request.method in ["POST", "PUT"]:
+        data = request.get_json(silent=True) or {}
+        new_username = str(data.get("username", "")).strip()
+        new_email = str(data.get("email", "")).strip().lower()
+
+        if new_username and len(new_username) < 3:
+            return jsonify({
+                "success": False,
+                "message": "Callsign/Username must be at least 3 characters."
+            }), 400
+
+        if new_username and new_username.lower() != user.username.lower():
+            existing = User.query.filter(
+                db.func.lower(User.username) == new_username.lower(),
+                User.id != user.id
+            ).first()
+            if existing:
+                return jsonify({
+                    "success": False,
+                    "message": "Callsign already in use by another driver."
+                }), 409
+            user.username = new_username
+
+        if new_email and new_email != user.email.lower():
+            existing_email = User.query.filter(
+                db.func.lower(User.email) == new_email,
+                User.id != user.id
+            ).first()
+            if existing_email:
+                return jsonify({
+                    "success": False,
+                    "message": "Email address already registered to another account."
+                }), 409
+            user.email = new_email
+
+        db.session.commit()
+
+    # Calculate detailed profile response
+    career = user.career
+    career_info = {
+        "started": False,
+        "team": user.selected_team or "None",
+        "driver_name": None,
+        "season": 2026,
+        "current_round": 1,
+        "season_completed": False,
+        "development_points_available": 0,
+        "development_points_used": 0,
+        "completed_races": 0,
+        "driver_points": 0,
+        "driver_position": None,
+        "driver_wins": 0,
+        "driver_podiums": 0,
+        "team_points": 0,
+        "team_position": None,
+        "upgrades": {},
+    }
+
+    if career and career.started:
+        c_dict = career.to_dict()
+        upgrades = career.get_upgrades()
+        total_upgrade_levels = sum(int(lvl) for lvl in upgrades.values()) if upgrades else 0
+        points_used = total_upgrade_levels * 5
+
+        # Get team standings from season result
+        season_res = career.get_season_result()
+        const_standings = season_res.get("constructor_standings", [])
+        my_team_standing = None
+        for row in const_standings:
+            if str(row.get("team", "")).strip().lower() == str(career.team_name).strip().lower():
+                my_team_standing = row
+                break
+
+        career_info = {
+            "started": True,
+            "team": career.team_name,
+            "driver_name": career.driver_name,
+            "season": career.season,
+            "current_round": career.current_round,
+            "season_completed": career.season_completed,
+            "development_points_available": career.development_points,
+            "development_points_used": points_used,
+            "completed_races": len(season_res.get("races", [])),
+            "driver_points": c_dict.get("driver_points", 0),
+            "driver_position": c_dict.get("driver_position"),
+            "driver_wins": c_dict.get("driver_wins", 0),
+            "driver_podiums": c_dict.get("driver_podiums", 0),
+            "team_points": my_team_standing.get("points", 0) if my_team_standing else 0,
+            "team_position": my_team_standing.get("position") if my_team_standing else None,
+            "upgrades": upgrades,
+        }
+
+    return jsonify({
+        "success": True,
+        "message": "Profile updated successfully." if request.method in ["POST", "PUT"] else "Profile loaded.",
+        "profile": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "is_admin": user.is_admin,
+            "selected_team": user.selected_team or (career.team_name if career else "None"),
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "last_login": user.last_login.isoformat() if user.last_login else None,
+            "career": career_info
+        }
+    })
+
+
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
     session.pop("user_id", None)

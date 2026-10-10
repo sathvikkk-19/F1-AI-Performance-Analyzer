@@ -3,8 +3,8 @@
 ========================================================= */
 
 .career-panel {
-    display: none;
-    padding: 50px;
+    display: block;
+    padding: 40px 32px;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     background: rgba(255,255,255,0.015);
