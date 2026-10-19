@@ -22,6 +22,7 @@ import {
     closeDriverCareerModal,
     confirmDriverCareer,
     runCareerRace,
+    launchPitWall,
     switchCareerRaceTab,
     loadCareerUpgrades,
     buyCareerUpgrade,
@@ -60,6 +61,7 @@ window.selectCareerDriver = selectCareerDriver;
 window.closeDriverCareerModal = closeDriverCareerModal;
 window.confirmDriverCareer = confirmDriverCareer;
 window.runCareerRace = runCareerRace;
+window.launchPitWall = launchPitWall;
 window.switchCareerRaceTab = switchCareerRaceTab;
 window.loadCareerUpgrades = loadCareerUpgrades;
 window.buyCareerUpgrade = buyCareerUpgrade;

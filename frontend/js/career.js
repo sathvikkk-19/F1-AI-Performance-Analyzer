@@ -6,6 +6,7 @@ import { API_BASE_URL, getMyTeam, setMyTeam } from "./config.js";
 import { state } from "./state.js";
 import { escapeHtml } from "./utils.js";
 import { teamsData } from "./teamsData.js";
+import { pitwall } from "./pitwall.js";
 
 export async function loadCareerDashboard() {
     const panel = document.getElementById("careerPanel");
@@ -70,10 +71,16 @@ export async function loadCareerDashboard() {
             }
         }
 
+        const pitWallButton = document.getElementById("launchPitWallButton");
+        if (pitWallButton) {
+            pitWallButton.disabled = career.season_completed === true;
+            pitWallButton.innerHTML = career.season_completed ? "SEASON COMPLETE" : "<span>⚡</span> ENTER PIT WALL COMMAND";
+        }
+
         const raceButton = document.getElementById("runCareerRaceButton");
         if (raceButton) {
             raceButton.disabled = career.season_completed === true;
-            raceButton.textContent = career.season_completed ? "SEASON COMPLETE" : "SIMULATE CURRENT RACE";
+            raceButton.textContent = career.season_completed ? "SEASON COMPLETE" : "QUICK SIMULATE";
         }
 
         await loadCareerTeams();
@@ -515,7 +522,30 @@ function renderCareerRaceView(data) {
     `;
 }
 
+// Launch Pit Wall Command
+export async function launchPitWall() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/career/dashboard`, { credentials: "include" });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!data.started) {
+            alert("Please start your career first.");
+            return;
+        }
+        if (data.career && data.career.season_completed) {
+            alert("The 2026 World Championship season is already complete!");
+            return;
+        }
+        await pitwall.launch(data);
+    } catch (error) {
+        console.error("Error launching Pit Wall:", error);
+        alert("Unable to launch Pit Wall Command: " + (error.message || error));
+    }
+}
+
 // Expose modal helper
 if (typeof window !== "undefined") {
     window.changeCareerModalTeam = changeCareerModalTeam;
+    window.launchPitWall = launchPitWall;
 }
+

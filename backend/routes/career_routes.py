@@ -268,7 +268,7 @@ def _race_driver_points(classification, driver_id=None, driver_name=None, fastes
     }
 
 
-def _development_reward(driver_result):
+def _development_reward(driver_result, tactical_bonus=0):
     """
     Calculate development points earned after one completed race.
 
@@ -279,6 +279,7 @@ def _development_reward(driver_result):
         +1 DP for finishing in the points.
         +2 DP for a podium.
         +3 DP for a win.
+        +2 DP for Pit-Wall Tactical Command excellence.
 
     These rewards are intentionally additive but modest so upgrades remain
     a meaningful strategic choice throughout the 24-race season.
@@ -291,6 +292,7 @@ def _development_reward(driver_result):
         "points_finish": 0,
         "podium": 0,
         "win": 0,
+        "tactical_command": 0,
     }
 
     if position is not None and position <= 10:
@@ -304,6 +306,10 @@ def _development_reward(driver_result):
     if position == 1:
         reward += WIN_DEVELOPMENT_BONUS
         breakdown["win"] = WIN_DEVELOPMENT_BONUS
+
+    if tactical_bonus > 0:
+        reward += tactical_bonus
+        breakdown["tactical_command"] = tactical_bonus
 
     breakdown["total"] = reward
     return reward, breakdown
@@ -706,6 +712,12 @@ def run_career_race():
         [],
     )
 
+    payload = request.get_json(silent=True) or {}
+    tactics = payload.get("tactics") or {}
+    tactical_bonus = int(tactics.get("bonus_dp", 0))
+    if tactics.get("tactical_success") and tactical_bonus == 0:
+        tactical_bonus = 2
+
     driver_result = _race_driver_points(
         race.get("classification", []),
         driver_id=career.get("driver_id"),
@@ -714,8 +726,13 @@ def run_career_race():
     )
 
     reward, reward_breakdown = _development_reward(
-        driver_result
+        driver_result,
+        tactical_bonus=tactical_bonus,
     )
+
+    if tactics:
+        race["tactical_summary"] = tactics
+
 
     old_development_points = int(
         career.get(

@@ -29,7 +29,14 @@ A state-of-the-art **Formula 1 2026 Season Performance & AI Race Strategy Simula
   - Dynamic track and weather conditions (Dry / Mixed / Wet)
 - **AI-Powered Tactical Stints**: High-fidelity pit-stop window optimization, undercut/overcut predictions, lap time deltas, and LLM-assisted race engineering briefings.
 
-### 🏆 3. 2026 World Championship Career Mode
+### 🎮 3. Pit-Wall Tactical Command & Live Race Director
+- **Interactive Live Telemetry Cockpit**: Real-time lap-by-lap timing tower with playback speeds (1X, 2X, 5X, Pause, Skip to End).
+- **In-Race Tactical Decision Engine**: Live prompts triggered during Safety Cars/VSC, sudden rainfall, and undercut windows with strategic stakes.
+- **Power Unit & Engine Strategy Toggles**: Live switching between Attack (Strat 1), Balanced (Strat 5), and Conserve (Strat 9).
+- **Procedural Audio Synthesizer**: Zero-dependency Web Audio API sound effects for team radio beeps, air guns, sirens, and chequered flag fanfare.
+- **Chequered Flag Debrief & Tactical DP Rewards**: Strategy report card, tactical grade (Grade A+), and bonus Development Points.
+
+### 🏆 4. 2026 World Championship Career Mode
 - **Full Season Progression**: Compete across 24 official Grand Prix rounds from Bahrain to Abu Dhabi.
 - **Realistic Race Simulation**:
   - Full qualifying sessions determining authentic grid positions.
@@ -38,7 +45,7 @@ A state-of-the-art **Formula 1 2026 Season Performance & AI Race Strategy Simula
   - Dynamic Drivers' and Constructors' Championship leaderboards.
 - **Current vs. Next Race Intelligence**: Inspect pace deltas, expected track characteristics, and competitor comparisons.
 
-### 🛠️ 4. Car Development & R&D Upgrade Shop
+### 🛠️ 5. Car Development & R&D Upgrade Shop
 - **Performance Feedback Loop**: Earn **Development Points (DP)** from race results, podiums, wins, and milestone bonuses.
 - **Departmental Upgrades**: Invest DP into Aerodynamics, Chassis, Power Unit / Energy Efficiency, Reliability, and Tire Management.
 - **Live Physics Impact**: Car upgrades directly enhance the vehicle's baseline attributes, feeding into subsequent qualifying and race simulation engines.
@@ -249,10 +256,10 @@ The application server will start on: **`http://127.0.0.1:5000`**
 This project is governed by a **Custom Educational, Non-Commercial & Source-Available License**. For the full legal text, please refer to the [`LICENSE`](LICENSE) file.
 
 ### Summary of Terms:
-- **Educational & Recreational Use Only**: Developed strictly out of personal interest in Formula 1 motorsport engineering, academic exploration, and recreational simulation modeling.
-- **Anti-Plagiarism & Authorship Protection**: No individual or entity may copy, re-host, repackage, or present this software or its architecture as their own original work.
-- **Strict Attribution Requirement**: Any fork, reference, or study must maintain complete, unaltered credit to **Sathwik (@sathvikkk-19)** and preserve the original copyright notice.
-- **Anti-Impersonation**: Misrepresenting oneself as the creator or maintainer of this codebase is strictly prohibited.
+- **Educational, Recreational & Developmental Use**: Anyone is free to use, study, and further develop or build upon this codebase for educational, academic, or non-commercial personal developmental purposes.
+- **Anti-Plagiarism & Authorship Protection**: No third party may claim ownership (which belongs strictly to the two designated co-owners) or claim to have designed/built this project from scratch, even when creating derivative developments.
+- **Strict Attribution Requirement**: Any fork, reference, study, or developmental extension must maintain complete, unaltered credit to **Sathwik (@sathvikkk-19)** and preserve the original LICENSE and copyright notices.
+- **Anti-Impersonation**: Misrepresenting oneself as the creator, author, or maintainer of this codebase is strictly prohibited.
 - **Non-Commercial**: Commercial deployment, monetization, or sale is strictly forbidden without express written authorization.
 
 ### Trademark Disclaimer

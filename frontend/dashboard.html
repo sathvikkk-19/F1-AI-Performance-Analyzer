@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="css/motion.css">
 <link rel="stylesheet" href="css/admin.css">
 <link rel="stylesheet" href="css/profile.css">
+<link rel="stylesheet" href="css/pitwall.css">
 </head>
 
 <body>
@@ -403,7 +404,12 @@
                             <button id="careerTabCurrent" class="career-tab active" onclick="switchCareerRaceTab('current')">CURRENT RACE</button>
                             <button id="careerTabNext" class="career-tab" onclick="switchCareerRaceTab('next')">NEXT RACE</button>
                         </div>
-                        <button id="runCareerRaceButton" class="career-start-btn career-race-btn" onclick="runCareerRace()" disabled>SIMULATE CURRENT RACE</button>
+                        <button id="launchPitWallButton" class="career-start-btn" style="background:linear-gradient(135deg, var(--red), #b91c1c); box-shadow:0 0 16px rgba(225,6,0,0.4);" onclick="launchPitWall()">
+                            <span>⚡</span> ENTER PIT WALL COMMAND
+                        </button>
+                        <button id="runCareerRaceButton" class="career-start-btn career-race-btn" style="background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#cbd5e1;" onclick="runCareerRace()" disabled title="Skip directly to the simulated result">
+                            QUICK SIMULATE
+                        </button>
                     </div>
 
                     <div class="career-stats">
@@ -611,6 +617,10 @@
         </div>
     </div>
 </div>
+
+<!-- Pit-Wall Tactical Command Center Modal -->
+<div id="pitwallModal" class="pitwall-modal"></div>
+
 
 <!-- =======================================================
      FOOTER
