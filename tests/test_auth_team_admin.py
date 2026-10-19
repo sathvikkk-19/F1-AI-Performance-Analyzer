@@ -53,8 +53,9 @@ def run_tests():
     print(f"PASS: 6-Digit OTP generated: {otp_code} for verified Google account.")
 
     # 5. Attempt registration with wrong OTP code - Should fail
+    test_full_name = "Verified Test Driver"
     res_bad_otp = client_driver.post("/api/auth/register", json={
-        "full_name": "Sathwik Kumar",
+        "full_name": test_full_name,
         "username": test_username,
         "email": test_email,
         "verification_code": "000000",
@@ -66,7 +67,7 @@ def run_tests():
 
     # 6. Register with correct OTP code, Full Name, and valid team
     res_reg = client_driver.post("/api/auth/register", json={
-        "full_name": "Sathwik Kumar",
+        "full_name": test_full_name,
         "username": test_username,
         "email": test_email,
         "verification_code": otp_code,
@@ -75,12 +76,12 @@ def run_tests():
     })
     if res_reg.status_code == 409:
         res_reg = client_driver.post("/api/auth/login", json={
-            "identifier": "sathwik_driver_99",
+            "identifier": test_username,
             "password": "SecretPassword123!"
         })
     assert res_reg.status_code in [200, 201]
     user1 = res_reg.get_json()["user"]
-    assert user1["full_name"] == "Sathwik Kumar"
+    assert user1["full_name"] == test_full_name
     assert user1["email_provider"] == "Google"
     assert user1["is_verified"] is True
     assert user1["selected_team"] == "Scuderia Ferrari HP"
@@ -113,10 +114,19 @@ def run_tests():
 
     matching_user = next((u for u in admin_overview["users"] if u["username"] == test_username), None)
     assert matching_user is not None
-    assert matching_user["full_name"] == "Sathwik Kumar"
+    assert matching_user["full_name"] == test_full_name
     assert matching_user["email_provider"] == "Google"
     assert matching_user["is_verified"] is True
     print(f"PASS: Admin user registry reflects verified user: {matching_user['full_name']} | Provider: {matching_user['email_provider']} | Verified: {matching_user['is_verified']}.")
+
+    # 10. Clean up transient test user from database
+    from backend.extensions import db
+    with app.app_context():
+        u_del = User.query.filter_by(username=test_username).first()
+        if u_del:
+            db.session.delete(u_del)
+            db.session.commit()
+    print("PASS: Transient test driver cleaned up from database.")
 
     print("\n>>> ALL TESTS PASSED SUCCESSFULLY! <<<")
 
