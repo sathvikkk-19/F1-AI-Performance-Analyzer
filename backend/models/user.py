@@ -16,10 +16,36 @@ class User(db.Model):
         nullable=False
     )
 
+    full_name = db.Column(
+        db.String(120),
+        nullable=True
+    )
+
     email = db.Column(
         db.String(120),
         unique=True,
         nullable=False
+    )
+
+    email_provider = db.Column(
+        db.String(50),
+        nullable=True
+    )
+
+    is_verified = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False
+    )
+
+    verification_code = db.Column(
+        db.String(10),
+        nullable=True
+    )
+
+    verification_code_expires_at = db.Column(
+        db.DateTime,
+        nullable=True
     )
 
     password_hash = db.Column(
@@ -58,13 +84,16 @@ class User(db.Model):
 
     @property
     def is_admin(self):
-        return (self.role or "").lower() == "admin" or (self.username or "").lower() == "admin"
+        return (self.role or "").lower() == "admin" or (self.username or "").lower() in ["admin", "sathwik_admin"]
 
     def to_dict(self, include_career=True):
         data = {
             "id": self.id,
             "username": self.username,
+            "full_name": self.full_name or self.username,
             "email": self.email,
+            "email_provider": self.email_provider or "Standard",
+            "is_verified": bool(self.is_verified),
             "role": "admin" if self.is_admin else (self.role or "user"),
             "is_admin": self.is_admin,
             "selected_team": self.selected_team,

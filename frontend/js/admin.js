@@ -78,12 +78,26 @@ export function filterAdminUsers(query) {
     }
     const filtered = allUsersCache.filter(u =>
         (u.username || "").toLowerCase().includes(q) ||
+        (u.full_name || "").toLowerCase().includes(q) ||
         (u.email || "").toLowerCase().includes(q) ||
+        (u.email_provider || "").toLowerCase().includes(q) ||
         (u.selected_team || "").toLowerCase().includes(q) ||
         (u.career?.team || "").toLowerCase().includes(q) ||
         (u.career?.driver_name || "").toLowerCase().includes(q)
     );
     renderAdminUserTable(filtered);
+}
+
+function getProviderBadge(provider) {
+    const p = (provider || "").toLowerCase();
+    if (p.includes("google") || p.includes("gmail")) {
+        return `<span style="background:rgba(234,67,53,0.15); border:1px solid rgba(234,67,53,0.4); color:#fca5a5; padding:1px 6px; border-radius:3px; font-size:9.5px; font-weight:700;">Google</span>`;
+    } else if (p.includes("yahoo")) {
+        return `<span style="background:rgba(123,44,191,0.15); border:1px solid rgba(123,44,191,0.4); color:#d8b4fe; padding:1px 6px; border-radius:3px; font-size:9.5px; font-weight:700;">Yahoo</span>`;
+    } else if (p.includes("outlook") || p.includes("microsoft")) {
+        return `<span style="background:rgba(0,120,212,0.15); border:1px solid rgba(0,120,212,0.4); color:#93c5fd; padding:1px 6px; border-radius:3px; font-size:9.5px; font-weight:700;">Outlook</span>`;
+    }
+    return `<span style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; padding:1px 6px; border-radius:3px; font-size:9.5px;">${escapeHtml(provider || "Email")}</span>`;
 }
 
 function renderAdminUserTable(users) {
@@ -101,13 +115,16 @@ function renderAdminUserTable(users) {
             ? `<span style="background:rgba(255,215,0,0.15); border:1px solid rgba(255,215,0,0.5); color:#ffd700; padding:2px 8px; border-radius:3px; font-size:10px; font-weight:700;">ADMIN</span>`
             : `<span style="background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.5); color:#06b6d4; padding:2px 8px; border-radius:3px; font-size:10px; font-weight:700;">DRIVER</span>`;
 
+        const verifiedBadge = user.is_verified
+            ? `<span style="display:inline-block; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; padding:1px 6px; border-radius:3px; font-size:9.5px; font-weight:700;">VERIFIED &#10003;</span>`
+            : `<span style="display:inline-block; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; padding:1px 6px; border-radius:3px; font-size:9.5px;">PENDING</span>`;
+
         const chosenTeam = career?.team || user.selected_team || "None selected";
         const teamBadge = `<span style="font-weight:600; color:#ffffff;">${escapeHtml(chosenTeam)}</span>`;
 
         let careerStatus = `<span style="color:rgba(255,255,255,0.4);">Not started</span>`;
         let driverInfo = "--";
         let statsInfo = "--";
-        let dpInfo = "--";
 
         if (career && career.started) {
             careerStatus = career.season_completed
@@ -116,23 +133,29 @@ function renderAdminUserTable(users) {
 
             driverInfo = `<strong>${escapeHtml(career.driver_name || "Unknown")}</strong>`;
             statsInfo = `${career.driver_points ?? 0} pts · ${career.driver_wins ?? 0}W / ${career.driver_podiums ?? 0}P`;
-            dpInfo = `${career.development_points ?? 0} DP`;
         }
 
-        const dateStr = user.created_at ? new Date(user.created_at).toLocaleDateString() : "--";
+        const providerBadge = getProviderBadge(user.email_provider);
+        const displayName = user.full_name || user.username;
 
         return `
             <tr>
                 <td>
-                    <div style="font-weight:700; color:#fff;">${escapeHtml(user.username)}</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.4);">${escapeHtml(user.email)}</div>
+                    <div style="font-weight:700; color:#fff; font-size:13px;">${escapeHtml(displayName)}</div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.45); font-family:'Orbitron', monospace;">@${escapeHtml(user.username)}</div>
                 </td>
-                <td>${roleBadge}</td>
+                <td>
+                    <div style="font-size:12px; color:#f1f5f9; margin-bottom:3px;">${escapeHtml(user.email)}</div>
+                    <div>${providerBadge}</div>
+                </td>
+                <td>
+                    <div>${roleBadge}</div>
+                    <div style="margin-top:4px;">${verifiedBadge}</div>
+                </td>
                 <td>${teamBadge}</td>
                 <td>${driverInfo}</td>
                 <td>${careerStatus}</td>
                 <td>${statsInfo}</td>
-                <td>${dpInfo}</td>
                 <td>
                     <button type="button" class="admin-inspect-btn" onclick="openAdminInspectModal(${user.id})" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:6px 10px; border-radius:4px; font-family:'Orbitron', monospace; font-size:9px; cursor:pointer; transition:all 0.2s;">
                         Inspect Telemetry &rarr;
@@ -155,19 +178,19 @@ export function openAdminInspectModal(userId) {
     let detailsHtml = `
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-bottom:20px;">
             <div class="admin-kpi-card">
-                <div class="admin-kpi-label">USER CALLSIGN</div>
-                <div class="admin-kpi-val" style="font-size:20px;">${escapeHtml(user.username)}</div>
-                <div class="admin-kpi-sub">${escapeHtml(user.email)}</div>
+                <div class="admin-kpi-label">DRIVER IDENTITY</div>
+                <div class="admin-kpi-val" style="font-size:18px;">${escapeHtml(user.full_name || user.username)}</div>
+                <div class="admin-kpi-sub">@${escapeHtml(user.username)} &bull; ${escapeHtml(user.email_provider || "Mail")}</div>
             </div>
             <div class="admin-kpi-card">
-                <div class="admin-kpi-label">ROLE</div>
-                <div class="admin-kpi-val" style="font-size:20px;">${user.is_admin ? "ADMIN" : "DRIVER"}</div>
-                <div class="admin-kpi-sub">Registered: ${user.created_at ? new Date(user.created_at).toLocaleDateString() : "--"}</div>
+                <div class="admin-kpi-label">VERIFIED MAILBOX</div>
+                <div class="admin-kpi-val" style="font-size:15px; word-break:break-all;">${escapeHtml(user.email)}</div>
+                <div class="admin-kpi-sub">${user.is_verified ? "Verified via 6-digit OTP ✓" : "Pending Verification"}</div>
             </div>
             <div class="admin-kpi-card">
-                <div class="admin-kpi-label">ACTIVE CONSTRUCTOR</div>
-                <div class="admin-kpi-val" style="font-size:18px;">${escapeHtml(career?.team || user.selected_team || "None")}</div>
-                <div class="admin-kpi-sub">Driver: ${escapeHtml(career?.driver_name || "None")}</div>
+                <div class="admin-kpi-label">CLEARANCE &amp; TEAM</div>
+                <div class="admin-kpi-val" style="font-size:18px;">${user.is_admin ? "FIA ADMIN" : "DRIVER"}</div>
+                <div class="admin-kpi-sub">${escapeHtml(career?.team || user.selected_team || "No Constructor")}</div>
             </div>
         </div>
     `;

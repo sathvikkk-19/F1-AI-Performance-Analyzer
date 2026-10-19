@@ -20,8 +20,9 @@
     --gold: #ffd700;
     --blue: #3b82f6;
     --cyan: #06b6d4;
+    --emerald: #10b981;
     --dark: #020617;
-    --card: rgba(8, 12, 26, 0.92);
+    --card: rgba(8, 12, 26, 0.94);
     --border: rgba(255, 255, 255, 0.14);
     --text-muted: rgba(255, 255, 255, 0.55);
 }
@@ -33,8 +34,8 @@ body {
     align-items: center;
     justify-content: center;
     background:
-        radial-gradient(ellipse at 50% 15%, rgba(225, 6, 0, 0.15), transparent 55%),
-        radial-gradient(ellipse at 85% 85%, rgba(6, 182, 212, 0.08), transparent 45%),
+        radial-gradient(ellipse at 50% 12%, rgba(225, 6, 0, 0.16), transparent 55%),
+        radial-gradient(ellipse at 85% 85%, rgba(6, 182, 212, 0.09), transparent 45%),
         #020617;
     color: #ffffff;
     font-family: 'Rajdhani', sans-serif;
@@ -62,28 +63,28 @@ body {
 .login-wrap {
     position: relative;
     z-index: 3;
-    width: min(480px, 100%);
+    width: min(520px, 100%);
     margin: auto 0;
 }
 
 .login-card {
-    padding: 38px 34px;
+    padding: 34px 30px;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--card);
     backdrop-filter: blur(24px);
     box-shadow:
-        0 24px 70px rgba(0, 0, 0, 0.7),
-        0 0 35px rgba(225, 6, 0, 0.08);
+        0 24px 70px rgba(0, 0, 0, 0.75),
+        0 0 40px rgba(225, 6, 0, 0.08);
 }
 
 .logo {
     text-align: center;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 }
 
 .logo img {
-    width: 90px;
+    width: 86px;
     filter: drop-shadow(0 0 12px rgba(225, 6, 0, 0.5));
 }
 
@@ -100,7 +101,7 @@ body {
 
 h1 {
     font-family: 'Orbitron', monospace;
-    font-size: 23px;
+    font-size: 22px;
     text-align: center;
     margin-bottom: 6px;
     letter-spacing: -0.5px;
@@ -109,18 +110,20 @@ h1 {
 .subtitle {
     text-align: center;
     color: var(--text-muted);
-    font-size: 14px;
-    margin-bottom: 24px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.4;
 }
 
-/* ── TAB SELECTOR ── */
+/* ── TAB SELECTOR (3 TABS) ── */
 .auth-tabs {
     display: flex;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
     padding: 4px;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
+    gap: 4px;
 }
 
 .auth-tab-btn {
@@ -129,14 +132,19 @@ h1 {
     border: none;
     color: var(--text-muted);
     font-family: 'Orbitron', monospace;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    padding: 10px 12px;
+    padding: 10px 8px;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.25s ease;
+    text-align: center;
+}
+
+.auth-tab-btn:hover {
+    color: #ffffff;
 }
 
 .auth-tab-btn.active {
@@ -145,30 +153,50 @@ h1 {
     box-shadow: 0 4px 14px rgba(225, 6, 0, 0.35);
 }
 
+.auth-tab-btn.admin-tab.active {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.9), rgba(180, 83, 9, 0.95));
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+}
+
 .field {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 label {
-    display: block;
-    margin-bottom: 6px;
-    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    color: rgba(255, 255, 255, 0.75);
     font-family: 'Orbitron', monospace;
     font-size: 9px;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
+}
+
+.label-hint {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    color: var(--cyan);
+    letter-spacing: 0;
+    text-transform: none;
 }
 
 input, select {
     width: 100%;
-    padding: 12px 14px;
+    padding: 11px 13px;
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     background: rgba(0, 0, 0, 0.6);
     color: white;
     outline: none;
-    font: 600 15px 'Rajdhani', sans-serif;
+    font: 600 14px 'Rajdhani', sans-serif;
     transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.28);
+    font-weight: 400;
 }
 
 select {
@@ -188,6 +216,44 @@ select option {
 input:focus, select:focus {
     border-color: rgba(225, 6, 0, 0.8);
     box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.2);
+}
+
+.input-with-button {
+    display: flex;
+    gap: 8px;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+.btn-inline-action {
+    padding: 0 14px;
+    background: rgba(6, 182, 212, 0.16);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    color: #67e8f9;
+    border-radius: 4px;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-inline-action:hover:not(:disabled) {
+    background: var(--cyan);
+    color: #020617;
+    box-shadow: 0 0 14px rgba(6, 182, 212, 0.5);
+}
+
+.btn-inline-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .btn-submit {
@@ -211,14 +277,72 @@ input:focus, select:focus {
     gap: 8px;
 }
 
+.btn-submit.btn-admin {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    box-shadow: 0 4px 20px rgba(217, 119, 6, 0.35);
+}
+
 .btn-submit:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 8px 26px rgba(225, 6, 0, 0.55);
 }
 
+.btn-submit.btn-admin:hover:not(:disabled) {
+    box-shadow: 0 8px 26px rgba(217, 119, 6, 0.55);
+}
+
 .btn-submit:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.provider-tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+.provider-tag {
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+}
+
+.admin-security-note {
+    background: rgba(217, 119, 6, 0.08);
+    border: 1px dashed rgba(245, 158, 11, 0.35);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.admin-security-note strong {
+    color: var(--gold);
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    display: block;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+}
+
+.terms-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.terms-note a {
+    color: var(--cyan);
+    text-decoration: underline;
 }
 
 .alert-box {
@@ -229,36 +353,19 @@ input:focus, select:focus {
     font-size: 13px;
     font-weight: 600;
     text-align: center;
+    line-height: 1.4;
 }
 
 .alert-error {
     border: 1px solid rgba(248, 113, 113, 0.35);
-    background: rgba(248, 113, 113, 0.1);
+    background: rgba(248, 113, 113, 0.12);
     color: #fca5a5;
 }
 
 .alert-success {
     border: 1px solid rgba(52, 211, 153, 0.35);
-    background: rgba(52, 211, 153, 0.1);
+    background: rgba(52, 211, 153, 0.12);
     color: #6ee7b7;
-}
-
-.admin-callout {
-    margin-top: 22px;
-    padding: 12px 14px;
-    border-radius: 4px;
-    border: 1px dashed rgba(255, 215, 0, 0.3);
-    background: rgba(255, 215, 0, 0.04);
-    text-align: center;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.admin-callout strong {
-    color: var(--gold);
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
 }
 
 .home-link {
@@ -278,7 +385,7 @@ input:focus, select:focus {
 
 .footer {
     width: 100%;
-    max-width: 480px;
+    max-width: 520px;
     margin-top: 24px;
     display: flex;
     justify-content: center;
@@ -324,7 +431,7 @@ input:focus, select:focus {
             <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/F1.svg" alt="F1">
         </div>
 
-        <div class="eyebrow">
+        <div class="eyebrow" id="authEyebrow">
             Formula 1 Telemetry Operations
         </div>
 
@@ -334,25 +441,32 @@ input:focus, select:focus {
             Access the 2026 Technical Regulations Strategy Simulator
         </div>
 
-        <!-- Mode Switcher -->
+        <!-- 3-Mode Switcher -->
         <div class="auth-tabs">
             <button type="button" class="auth-tab-btn active" id="tabSignIn" onclick="switchAuthMode('login')">
                 Sign In
             </button>
             <button type="button" class="auth-tab-btn" id="tabRegister" onclick="switchAuthMode('register')">
-                Create Account
+                Driver Register
+            </button>
+            <button type="button" class="auth-tab-btn admin-tab" id="tabAdmin" onclick="switchAuthMode('admin')">
+                ⚡ FIA Admin
             </button>
         </div>
 
-        <!-- SIGN IN FORM -->
+        <!-- Alerts -->
+        <div id="errorAlert" class="alert-box alert-error"></div>
+        <div id="successAlert" class="alert-box alert-success"></div>
+
+        <!-- 1. DRIVER SIGN IN FORM -->
         <form id="loginForm">
             <div class="field">
-                <label for="loginIdentifier">Username or Email</label>
+                <label for="loginIdentifier">Callsign or Verified Email</label>
                 <input
                     id="loginIdentifier"
                     type="text"
                     autocomplete="username"
-                    placeholder="Enter your username or email"
+                    placeholder="Enter callsign or email"
                     required
                 >
             </div>
@@ -370,33 +484,72 @@ input:focus, select:focus {
 
             <button type="submit" class="btn-submit" id="btnLoginSubmit">
                 <span class="spinner" id="loginSpinner"></span>
-                <span id="loginBtnText">SIGN IN</span>
+                <span id="loginBtnText">SIGN IN TO GRID</span>
             </button>
         </form>
 
-        <!-- REGISTER FORM -->
+        <!-- 2. DRIVER REGISTRATION FORM -->
         <form id="registerForm" style="display: none;">
             <div class="field">
-                <label for="regUsername">Username</label>
+                <label for="regFullName">Full Legal Name</label>
+                <input
+                    id="regFullName"
+                    type="text"
+                    autocomplete="name"
+                    placeholder="e.g. Sathwik Kumar"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label for="regUsername">Driver Callsign / Username</label>
                 <input
                     id="regUsername"
                     type="text"
                     autocomplete="username"
-                    placeholder="Choose a callsign (e.g. MaxV)"
+                    placeholder="e.g. SathwikK or MaxV"
                     required
                     minlength="3"
                 >
             </div>
 
             <div class="field">
-                <label for="regEmail">Email Address</label>
+                <label for="regEmail">
+                    <span>Verified Mailbox</span>
+                    <span class="label-hint">Google · Yahoo · Outlook only</span>
+                </label>
                 <input
                     id="regEmail"
                     type="email"
                     autocomplete="email"
-                    placeholder="driver@f1-team.com"
+                    placeholder="name@gmail.com, @yahoo.com, or @outlook.com"
                     required
                 >
+                <div class="provider-tags">
+                    <span class="provider-tag">@gmail.com</span>
+                    <span class="provider-tag">@yahoo.com</span>
+                    <span class="provider-tag">@outlook.com / @hotmail.com</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="regVerificationCode">
+                    <span>6-Digit Mail Verification Code</span>
+                    <span class="label-hint" id="codeCountdown">Cross-verification required</span>
+                </label>
+                <div class="input-with-button">
+                    <input
+                        id="regVerificationCode"
+                        type="text"
+                        placeholder="6-digit code"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        required
+                    >
+                    <button type="button" class="btn-inline-action" id="btnSendCode" onclick="handleSendVerificationCode()">
+                        SEND CODE
+                    </button>
+                </div>
             </div>
 
             <div class="field">
@@ -428,21 +581,66 @@ input:focus, select:focus {
                 </select>
             </div>
 
+            <p class="terms-note">
+                By registering, you confirm the email belongs to you and agree to the
+                <a href="terms.html" target="_blank">Terms &amp; Conditions</a> and
+                <a href="privacy.html" target="_blank">Privacy Policy</a> regarding identity collection.
+            </p>
+
             <button type="submit" class="btn-submit" id="btnRegSubmit">
                 <span class="spinner" id="regSpinner"></span>
-                <span id="regBtnText">JOIN GRID &amp; START</span>
+                <span id="regBtnText">VERIFY &amp; JOIN GRID</span>
             </button>
         </form>
 
-        <!-- Alerts -->
-        <div id="errorAlert" class="alert-box alert-error"></div>
-        <div id="successAlert" class="alert-box alert-success"></div>
+        <!-- 3. OFFICIAL FIA ADMIN PORTAL FORM -->
+        <form id="adminForm" style="display: none;">
+            <div class="admin-security-note">
+                <strong>🔒 RESTRICTED FIA RACE CONTROL GATEWAY</strong>
+                Authorized race administrators only. Access requires valid administrative callsign, password, and your private cryptographic FIA Passkey.
+            </div>
 
-        <!-- Official Admin Callout -->
-        <div class="admin-callout">
-            Official F1 Admin Access:<br>
-            Username: <strong>admin</strong> &bull; Password: <strong>f1admin2026</strong>
-        </div>
+            <div class="field">
+                <label for="adminIdentifier">Admin Master Callsign</label>
+                <input
+                    id="adminIdentifier"
+                    type="text"
+                    autocomplete="username"
+                    placeholder="Authorized admin callsign"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label for="adminPassword">Master Password</label>
+                <input
+                    id="adminPassword"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="••••••••"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label for="adminPasskey">
+                    <span>Admin Security Passkey</span>
+                    <span class="label-hint" style="color:var(--gold);">Passkey Required</span>
+                </label>
+                <input
+                    id="adminPasskey"
+                    type="password"
+                    autocomplete="off"
+                    placeholder="F1-PASSKEY-XXXX-XXXX-XXXX"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn-submit btn-admin" id="btnAdminSubmit">
+                <span class="spinner" id="adminSpinner"></span>
+                <span id="adminBtnText">AUTHENTICATE FIA COMMAND</span>
+            </button>
+        </form>
 
         <a class="home-link" href="index.html">
             &larr; Return to Overview
@@ -470,25 +668,45 @@ function switchAuthMode(mode) {
 
     const tabSignIn = document.getElementById("tabSignIn");
     const tabRegister = document.getElementById("tabRegister");
+    const tabAdmin = document.getElementById("tabAdmin");
+
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
+    const adminForm = document.getElementById("adminForm");
+
+    const authEyebrow = document.getElementById("authEyebrow");
     const authTitle = document.getElementById("authTitle");
     const authSubtitle = document.getElementById("authSubtitle");
 
+    tabSignIn.classList.remove("active");
+    tabRegister.classList.remove("active");
+    tabAdmin.classList.remove("active");
+
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
+    adminForm.style.display = "none";
+
     if (mode === "login") {
         tabSignIn.classList.add("active");
-        tabRegister.classList.remove("active");
         loginForm.style.display = "block";
-        registerForm.style.display = "none";
+        authEyebrow.textContent = "Formula 1 Telemetry Operations";
+        authEyebrow.style.color = "var(--red)";
         authTitle.textContent = "Telemetry Access";
-        authSubtitle.textContent = "Access the 2026 Technical Regulations Strategy Simulator";
-    } else {
-        tabSignIn.classList.remove("active");
+        authSubtitle.textContent = "Sign in to access the 2026 Strategy Simulator and your career";
+    } else if (mode === "register") {
         tabRegister.classList.add("active");
-        loginForm.style.display = "none";
         registerForm.style.display = "block";
+        authEyebrow.textContent = "Driver Super Licence Registry";
+        authEyebrow.style.color = "var(--cyan)";
         authTitle.textContent = "Driver Registration";
-        authSubtitle.textContent = "Create your telemetry account and select your constructor";
+        authSubtitle.textContent = "Register with a verified Google, Yahoo, or Outlook email address";
+    } else if (mode === "admin") {
+        tabAdmin.classList.add("active");
+        adminForm.style.display = "block";
+        authEyebrow.textContent = "FIA Race Control Clearance";
+        authEyebrow.style.color = "var(--gold)";
+        authTitle.textContent = "FIA Admin Portal";
+        authSubtitle.textContent = "Exclusive race control access for registered system administrator";
     }
 }
 
@@ -514,6 +732,7 @@ function hideAlerts() {
 function handleAuthSuccess(user, customMessage = null) {
     sessionStorage.setItem("f1_auth_session", "authenticated");
     sessionStorage.setItem("f1_username", user.username || "");
+    sessionStorage.setItem("f1_full_name", user.full_name || user.username || "");
     sessionStorage.setItem("f1_role", user.role || "user");
     sessionStorage.setItem("f1_is_admin", user.is_admin ? "true" : "false");
     sessionStorage.setItem("f1_user_id", user.id || "");
@@ -522,7 +741,7 @@ function handleAuthSuccess(user, customMessage = null) {
         localStorage.setItem("f1_selected_team", user.selected_team);
     }
 
-    showAlert(customMessage || `Welcome, ${user.username}! Accessing telemetry grid...`, false);
+    showAlert(customMessage || `Welcome, ${user.full_name || user.username}! Accessing telemetry grid...`, false);
 
     const params = new URLSearchParams(window.location.search);
     const requestedNext = params.get("next");
@@ -539,7 +758,74 @@ function handleAuthSuccess(user, customMessage = null) {
     }, 700);
 }
 
-// Sign In submission
+// Send Verification Code Handler
+async function handleSendVerificationCode() {
+    hideAlerts();
+    const emailInput = document.getElementById("regEmail");
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (!email || !email.includes("@")) {
+        showAlert("Please enter a valid email address first.");
+        emailInput.focus();
+        return;
+    }
+
+    // Check domain preview
+    const allowed = ["@gmail.com", "@googlemail.com", "@yahoo.com", "@yahoo.co.uk", "@yahoo.fr", "@yahoo.co.in", "@outlook.com", "@hotmail.com", "@live.com", "@msn.com"];
+    const matchesDomain = allowed.some(domain => email.endsWith(domain));
+    if (!matchesDomain) {
+        showAlert("Registration is strictly restricted to verified Google (@gmail.com), Yahoo (@yahoo.com), or Outlook/Hotmail (@outlook.com) accounts.");
+        return;
+    }
+
+    const btn = document.getElementById("btnSendCode");
+    btn.disabled = true;
+    btn.textContent = "SENDING...";
+
+    try {
+        const response = await fetch(`${API_BASE}/api/auth/send-verification-code`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            let msg = data.message || `Verification code sent to ${email}!`;
+            if (data.dev_code) {
+                // If local development without active external SMTP, auto-fill for testing ease
+                document.getElementById("regVerificationCode").value = data.dev_code;
+                msg += ` [Testing code: ${data.dev_code}]`;
+            }
+            showAlert(msg, false);
+
+            // 60-second cooldown on button
+            let countdown = 60;
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.textContent = "RESEND CODE";
+                } else {
+                    btn.textContent = `${countdown}s`;
+                }
+            }, 1000);
+        } else {
+            showAlert(data.message || "Failed to dispatch verification code.");
+            btn.disabled = false;
+            btn.textContent = "SEND CODE";
+        }
+    } catch (err) {
+        showAlert("Server connection failed while sending verification code. Check backend.");
+        btn.disabled = false;
+        btn.textContent = "SEND CODE";
+    }
+}
+
+// 1. Standard Sign In submission
 document.getElementById("loginForm").addEventListener("submit", async function(event) {
     event.preventDefault();
     hideAlerts();
@@ -567,33 +853,35 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
         if (response.ok && data.success) {
             handleAuthSuccess(data.user);
         } else {
-            showAlert(data.message || "Invalid username/email or password.");
+            showAlert(data.message || "Invalid callsign/email or password.");
             btn.disabled = false;
             spinner.style.display = "none";
-            btnText.textContent = "SIGN IN";
+            btnText.textContent = "SIGN IN TO GRID";
         }
     } catch (err) {
-        // Fallback for local admin bypass if server unreachable
-        if (identifier === "admin" && password === "f1admin2026") {
-            handleAuthSuccess({ username: "admin", role: "admin", is_admin: true, selected_team: "Oracle Red Bull Racing" }, "Offline Admin verification succeeded.");
-            return;
-        }
         showAlert("Connection error connecting to telemetry server. Please verify backend is running.");
         btn.disabled = false;
         spinner.style.display = "none";
-        btnText.textContent = "SIGN IN";
+        btnText.textContent = "SIGN IN TO GRID";
     }
 });
 
-// Register submission
+// 2. Driver Register submission
 document.getElementById("registerForm").addEventListener("submit", async function(event) {
     event.preventDefault();
     hideAlerts();
 
+    const full_name = document.getElementById("regFullName").value.trim();
     const username = document.getElementById("regUsername").value.trim();
-    const email = document.getElementById("regEmail").value.trim();
+    const email = document.getElementById("regEmail").value.trim().toLowerCase();
+    const verification_code = document.getElementById("regVerificationCode").value.trim();
     const password = document.getElementById("regPassword").value;
     const selected_team = document.getElementById("regTeam").value;
+
+    if (!verification_code) {
+        showAlert("Please enter the 6-digit verification code sent to your email.");
+        return;
+    }
 
     const btn = document.getElementById("btnRegSubmit");
     const spinner = document.getElementById("regSpinner");
@@ -601,31 +889,85 @@ document.getElementById("registerForm").addEventListener("submit", async functio
 
     btn.disabled = true;
     spinner.style.display = "inline-block";
-    btnText.textContent = "CREATING ACCOUNT...";
+    btnText.textContent = "VERIFYING CODE & REGISTERING...";
 
     try {
         const response = await fetch(`${API_BASE}/api/auth/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify({ username, email, password, selected_team })
+            body: JSON.stringify({
+                full_name,
+                username,
+                email,
+                verification_code,
+                password,
+                selected_team
+            })
         });
 
         const data = await response.json();
 
         if (response.ok && data.success) {
-            handleAuthSuccess(data.user, `Account created for ${data.user.username}! Initializing ${data.user.selected_team || selected_team}...`);
+            handleAuthSuccess(data.user, `Account verified and created for ${data.user.full_name || data.user.username}! Initializing ${data.user.selected_team || selected_team}...`);
         } else {
             showAlert(data.message || "Failed to create account.");
             btn.disabled = false;
             spinner.style.display = "none";
-            btnText.textContent = "JOIN GRID & START";
+            btnText.textContent = "VERIFY & JOIN GRID";
         }
     } catch (err) {
         showAlert("Server connection failed. Please ensure the backend server is running.");
         btn.disabled = false;
         spinner.style.display = "none";
-        btnText.textContent = "JOIN GRID & START";
+        btnText.textContent = "VERIFY & JOIN GRID";
+    }
+});
+
+// 3. Official FIA Admin Portal submission
+document.getElementById("adminForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+    hideAlerts();
+
+    const identifier = document.getElementById("adminIdentifier").value.trim();
+    const password = document.getElementById("adminPassword").value;
+    const admin_passkey = document.getElementById("adminPasskey").value.trim();
+
+    const btn = document.getElementById("btnAdminSubmit");
+    const spinner = document.getElementById("adminSpinner");
+    const btnText = document.getElementById("adminBtnText");
+
+    btn.disabled = true;
+    spinner.style.display = "inline-block";
+    btnText.textContent = "AUTHENTICATING FIA PASSKEY...";
+
+    try {
+        const response = await fetch(`${API_BASE}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                identifier,
+                password,
+                admin_passkey
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            handleAuthSuccess(data.user, `FIA Race Control Cleared. Welcome, Administrator ${data.user.username}!`);
+        } else {
+            showAlert(data.message || "Admin authentication failed. Invalid passkey or credentials.");
+            btn.disabled = false;
+            spinner.style.display = "none";
+            btnText.textContent = "AUTHENTICATE FIA COMMAND";
+        }
+    } catch (err) {
+        showAlert("Server connection failed. Please verify the backend is running.");
+        btn.disabled = false;
+        spinner.style.display = "none";
+        btnText.textContent = "AUTHENTICATE FIA COMMAND";
     }
 });
 </script>

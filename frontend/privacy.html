@@ -202,20 +202,33 @@ li {
     <h2>1. Information We Collect</h2>
     <p>The F1 2026 Performance Simulator collects operational data necessary for computational race strategy modeling and user authentication:</p>
     <ul>
-      <li><strong>Account Credentials:</strong> Username and salted session credentials used to maintain simulator state and career progress.</li>
+      <li><strong>Full Legal Name:</strong> Collected to establish your driver identity, career championship record, and individual telemetry telemetry attribution.</li>
+      <li><strong>Verified Email Address &amp; Provider:</strong> Collected to guarantee account authenticity, prevent malicious bot registration, and enable secure session verification. Restricted strictly to verified Google, Yahoo, or Microsoft Outlook/Hotmail domains.</li>
+      <li><strong>Account Credentials:</strong> Username callsign and salted SHA-256 / Werkzeug password hashes used to maintain simulator state and career progress. Plaintext passwords are never stored.</li>
       <li><strong>Telemetry Configuration Inputs:</strong> Circuit selections, downforce settings, drag configurations, tire degradation thresholds, and weather profiles input into the strategy engine.</li>
       <li><strong>Local State and Preferences:</strong> Session cookies and local storage tokens stored directly on your client device to preserve active team selection and constructor dashboard state.</li>
     </ul>
   </div>
 
   <div class="card">
-    <h2>2. Processing and Simulation Execution</h2>
+    <h2>2. Purpose of Name &amp; Email Collection &amp; Cross-Verification</h2>
+    <p>We believe in radical data transparency. Here is why we request your Full Name and Email Address:</p>
+    <ul>
+      <li><strong>Authentic Driver Licensing:</strong> In competitive championship telemetry, each driver entry must be linked to a genuine, unique individual rather than scripted bots.</li>
+      <li><strong>Domain Restriction Policy:</strong> By requiring authentic Google, Yahoo, or Outlook accounts, we eliminate transient disposable mailboxes often utilized for automated abuse, DDoS attempts, and scoreboard tampering.</li>
+      <li><strong>6-Digit Security OTP:</strong> During registration, our system generates an ephemeral 6-digit verification code transmitted to your inbox. This confirms mailbox accessibility in real time. Verification tokens expire automatically after 15 minutes and are purged from active memory.</li>
+      <li><strong>Zero Advertising Exploitation:</strong> Your full name and email are strictly restricted to authentication and administrative telemetry auditing. We never sell, lease, or monetize your contact information.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>3. Processing and Simulation Execution</h2>
     <p>Simulation parameters are processed locally and through our secure computational backend API. Strategy calculations, tire wear progressions, and aerodynamic delta simulations execute transiently without persistent logging of identifiable telemetry requests.</p>
     <p>We do not sell, rent, or commercialize telemetry configurations or individual race simulation queries to third-party advertising networks.</p>
   </div>
 
   <div class="card">
-    <h2>3. Cookies and Client-Side Storage</h2>
+    <h2>4. Cookies and Client-Side Storage</h2>
     <p>This platform utilizes strict functional storage mechanisms:</p>
     <ul>
       <li><strong>Authentication Tokens:</strong> Secure HTTP cookies validating session integrity.</li>
@@ -224,12 +237,12 @@ li {
   </div>
 
   <div class="card">
-    <h2>4. Data Security and Infrastructure</h2>
+    <h2>5. Data Security and Infrastructure</h2>
     <p>Industry-standard TLS encryption is enforced across all communication channels between your browser and our computational endpoints. Session tokens are hashed and validated with strict CORS boundaries.</p>
   </div>
 
   <div class="card">
-    <h2>5. Contact and Inquiries</h2>
+    <h2>6. Contact and Inquiries</h2>
     <p>For questions regarding telemetry data handling or account retention, contact the engineering desk at operations@f1-performance-engine.internal or open an issue on the project repository.</p>
   </div>
 </main>

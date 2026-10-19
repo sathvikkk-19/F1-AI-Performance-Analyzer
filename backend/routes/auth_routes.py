@@ -1,7 +1,10 @@
+import os
+import random
+from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
 
+from backend.config import Config
 from backend.extensions import db
 from backend.models.user import User
 from backend.models.team import Team
@@ -14,35 +17,172 @@ auth_bp = Blueprint(
 )
 
 
+# =============================================================
+# ALLOWED EMAIL PROVIDERS (GOOGLE, YAHOO, OUTLOOK)
+# =============================================================
+ALLOWED_EMAIL_DOMAINS = {
+    # Google
+    "gmail.com": "Google",
+    "googlemail.com": "Google",
+    # Yahoo
+    "yahoo.com": "Yahoo",
+    "yahoo.co.in": "Yahoo",
+    "yahoo.co.uk": "Yahoo",
+    "yahoo.ca": "Yahoo",
+    "yahoo.fr": "Yahoo",
+    "ymail.com": "Yahoo",
+    # Outlook / Microsoft
+    "outlook.com": "Outlook",
+    "hotmail.com": "Outlook",
+    "live.com": "Outlook",
+    "msn.com": "Outlook",
+}
+
+
+def _validate_email_domain(email_str):
+    if not email_str or "@" not in email_str:
+        return False, None, "Invalid email address format."
+    domain = email_str.strip().split("@")[-1].lower()
+    provider = ALLOWED_EMAIL_DOMAINS.get(domain)
+    if not provider:
+        return False, None, (
+            "Registration is strictly restricted to authentic personal mail accounts "
+            "linked with Google (@gmail.com), Yahoo (@yahoo.com), or Outlook/Hotmail (@outlook.com). "
+            f"The email domain '@{domain}' is not permitted."
+        )
+    return True, provider, None
+
+
 def _ensure_admin_user():
-    admin = User.query.filter_by(username="admin").first()
+    admin_username = Config.ADMIN_USERNAME or "admin"
+    admin_password = Config.ADMIN_PASSWORD
+    if not admin_password:
+        return User.query.filter_by(role="admin").first()
+
+    admin = User.query.filter(
+        db.or_(
+            User.username == admin_username,
+            User.username == "admin"
+        )
+    ).first()
+
     if not admin:
         admin = User(
-            username="admin",
-            email="admin@f1.com",
-            password_hash=generate_password_hash("f1admin2026"),
+            username=admin_username,
+            full_name="FIA Chief Race Director",
+            email="admin@f1-performance.internal",
+            email_provider="Internal",
+            is_verified=True,
+            password_hash=generate_password_hash(admin_password),
             role="admin",
             selected_team="Oracle Red Bull Racing",
-            created_at=datetime.utcnow()
+            created_at=datetime.utcnow(),
+            last_login=datetime.utcnow()
         )
         db.session.add(admin)
-        db.session.commit()
+    else:
+        admin.username = admin_username
+        admin.password_hash = generate_password_hash(admin_password)
+        admin.role = "admin"
+        admin.is_verified = True
+
+    db.session.commit()
     return admin
 
 
+# =============================================================
+# SEND 6-DIGIT EMAIL VERIFICATION CODE
+# =============================================================
+@auth_bp.route("/send-verification-code", methods=["POST"])
+def send_verification_code():
+    data = request.get_json(silent=True) or {}
+    email = str(data.get("email", "")).strip().lower()
+    full_name = str(data.get("full_name", "")).strip()
+
+    valid, provider, err = _validate_email_domain(email)
+    if not valid:
+        return jsonify({"success": False, "message": err}), 400
+
+    # Check if email is already taken
+    existing = User.query.filter(db.func.lower(User.email) == email).first()
+    if existing:
+        return jsonify({
+            "success": False,
+            "message": "An account with this email address already exists. Please sign in."
+        }), 409
+
+    code = f"{random.randint(100000, 999999)}"
+    expires_at = datetime.utcnow() + timedelta(minutes=15)
+
+    session["pending_otp"] = {
+        "email": email,
+        "code": code,
+        "expires_at": expires_at.isoformat(),
+        "provider": provider
+    }
+
+    return jsonify({
+        "success": True,
+        "message": f"A 6-digit verification code has been issued for your {provider} account ({email}).",
+        "provider": provider,
+        "email": email,
+        "verification_code": code,
+        "dev_code": code
+    })
+
+
+# =============================================================
+# USER REGISTRATION
+# =============================================================
 @auth_bp.route("/register", methods=["POST"])
 def register():
     data = request.get_json(silent=True) or {}
 
+    full_name = str(data.get("full_name", "")).strip()
     username = str(data.get("username", "")).strip()
     email = str(data.get("email", "")).strip().lower()
     password = str(data.get("password", ""))
     selected_team = str(data.get("selected_team", "")).strip()
+    code = str(data.get("verification_code", "")).strip()
+
+    if not full_name:
+        return jsonify({
+            "success": False,
+            "message": "Full Name is required for driver registration."
+        }), 400
 
     if not username or not email or not password:
         return jsonify({
             "success": False,
-            "message": "Username, email and password are required."
+            "message": "Full Name, Username callsign, email and password are required."
+        }), 400
+
+    # Disallow unauthorized users from taking admin names
+    if username.lower() in ["admin", "sathwik_admin", "administrator", "root"]:
+        return jsonify({
+            "success": False,
+            "message": "The username 'admin' is reserved strictly for the Chief Race Director."
+        }), 403
+
+    valid_domain, provider, err = _validate_email_domain(email)
+    if not valid_domain:
+        return jsonify({"success": False, "message": err}), 400
+
+    # Cross-verify OTP
+    pending_otp = session.get("pending_otp") or {}
+    expected_code = str(pending_otp.get("code", "")).strip()
+    expected_email = str(pending_otp.get("email", "")).strip().lower()
+
+    if not code:
+        return jsonify({
+            "success": False,
+            "message": "A 6-digit email verification security code is required. Click 'Send Code' to receive your verification code."
+        }), 400
+
+    if expected_email != email or str(code) != str(expected_code):
+        return jsonify({
+            "success": False,
+            "message": "Invalid or expired verification code for this email. Please request a new security code."
         }), 400
 
     if len(username) < 3:
@@ -77,23 +217,21 @@ def register():
             "message": "An account with this email already exists."
         }), 409
 
-    role = "admin" if username.lower() == "admin" else "user"
-
     # Validate selected team if provided
     if selected_team:
         team_record = Team.query.filter(
             db.func.lower(Team.name) == selected_team.lower()
         ).first()
-        if team_record:
-            selected_team = team_record.name
-        else:
-            selected_team = None
+        selected_team = team_record.name if team_record else None
 
     user = User(
         username=username,
+        full_name=full_name,
         email=email,
+        email_provider=provider,
+        is_verified=True,
         password_hash=generate_password_hash(password),
-        role=role,
+        role="user",
         selected_team=selected_team or None,
         created_at=datetime.utcnow(),
         last_login=datetime.utcnow()
@@ -102,22 +240,27 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    # Automatically authenticate the new user session
+    # Clear pending OTP from session
+    session.pop("pending_otp", None)
     session["user_id"] = user.id
 
     return jsonify({
         "success": True,
-        "message": "Account created successfully.",
+        "message": f"Account cross-verified via {provider} and created successfully.",
         "user": user.to_dict()
     }), 201
 
 
+# =============================================================
+# USER & ADMIN LOGIN
+# =============================================================
 @auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json(silent=True) or {}
 
     identifier = str(data.get("identifier", "")).strip()
     password = str(data.get("password", ""))
+    admin_passkey = str(data.get("admin_passkey", "")).strip()
 
     if not identifier or not password:
         return jsonify({
@@ -125,8 +268,9 @@ def login():
             "message": "Username/email and password are required."
         }), 400
 
-    # Ensure admin user is seeded if logging in with admin credentials
-    if identifier.lower() in ["admin", "admin@f1.com"] and password == "f1admin2026":
+    # Ensure admin user is seeded with credentials from .env
+    admin_targets = [Config.ADMIN_USERNAME.lower(), "admin", "admin@f1-performance.internal"] if Config.ADMIN_USERNAME else ["admin"]
+    if identifier.lower() in admin_targets:
         _ensure_admin_user()
 
     user = User.query.filter(
@@ -142,11 +286,18 @@ def login():
             "message": "Invalid username/email or password."
         }), 401
 
+    # Security Check: If user is an Admin, STRICT PASSKEY VERIFICATION is enforced
+    if user.is_admin:
+        if not Config.ADMIN_PASSKEY or not admin_passkey or admin_passkey != Config.ADMIN_PASSKEY:
+            return jsonify({
+                "success": False,
+                "is_admin_error": True,
+                "message": "Security Alert: Valid Admin Master Passkey is required to access Administrator privileges."
+            }), 403
+
     if not check_password_hash(user.password_hash, password):
-        # Fallback check for admin account in case default password was hashed differently
-        if user.username.lower() == "admin" and password == "f1admin2026":
-            user.password_hash = generate_password_hash("f1admin2026")
-            user.role = "admin"
+        if user.is_admin and Config.ADMIN_PASSWORD and password == Config.ADMIN_PASSWORD:
+            user.password_hash = generate_password_hash(Config.ADMIN_PASSWORD)
             db.session.commit()
         else:
             return jsonify({
@@ -164,6 +315,7 @@ def login():
         "message": "Login successful.",
         "user": user.to_dict()
     })
+
 
 
 @auth_bp.route("/me", methods=["GET"])

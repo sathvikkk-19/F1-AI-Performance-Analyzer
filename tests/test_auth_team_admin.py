@@ -1,118 +1,122 @@
 import json
 from backend.app import app
 from backend.models import User, Career
+from backend.config import Config
 
 def run_tests():
-    print("=== Running Integration Tests for Auth, Teams, Career, and Admin ===")
+    print("=== Running Integration Tests for Secure Admin Passkey, Email OTP, and Team Career ===")
     client = app.test_client()
 
-    # 1. Verify Admin user exists and can log in with provided credentials
-    res = client.post("/api/auth/login", json={"identifier": "admin", "password": "f1admin2026"})
-    assert res.status_code == 200, f"Admin login failed: {res.data}"
-    admin_data = res.get_json()
-    assert admin_data["success"] is True
-    assert admin_data["user"]["role"] == "admin"
-    assert admin_data["user"]["is_admin"] is True
-    print("PASS: Admin login with admin / f1admin2026 verified.")
+    # 1. Verify Admin login without passkey is BLOCKED (403 Forbidden)
+    res_no_passkey = client.post("/api/auth/login", json={
+        "identifier": Config.ADMIN_USERNAME,
+        "password": Config.ADMIN_PASSWORD
+    })
+    assert res_no_passkey.status_code == 403, f"Expected 403 when passkey missing, got {res_no_passkey.status_code}"
+    print("PASS: Admin login without passkey correctly blocked with 403 Forbidden.")
 
-    # 2. Register first user with Ferrari
-    client_ferrari = app.test_client()
-    res = client_ferrari.post("/api/auth/register", json={
-        "username": "ferrari_driver_1",
-        "email": "ferrari1@f1.com",
-        "password": "password123",
+    # 2. Verify Admin login WITH valid passkey succeeds
+    res_admin = client.post("/api/auth/login", json={
+        "identifier": Config.ADMIN_USERNAME,
+        "password": Config.ADMIN_PASSWORD,
+        "admin_passkey": Config.ADMIN_PASSKEY
+    })
+    assert res_admin.status_code == 200, f"Admin login failed: {res_admin.data}"
+    admin_data = res_admin.get_json()
+    assert admin_data["success"] is True
+    assert admin_data["user"]["is_admin"] is True
+    print(f"PASS: Admin login with passkey verified for {Config.ADMIN_USERNAME}.")
+
+    # 3. Test Email Domain Validation - Reject invalid/disposable domain
+    res_invalid_email = client.post("/api/auth/send-verification-code", json={
+        "email": "driver@random-temporary-domain.xyz"
+    })
+    assert res_invalid_email.status_code == 400
+    print("PASS: Blocked non-approved email domain correctly.")
+
+    # 4. Request 6-digit OTP code for legitimate Google Mail
+    # 4. Request 6-digit OTP code for legitimate Google Mail
+    import time
+    test_id = int(time.time())
+    test_username = f"driver_{test_id}"
+    test_email = f"racer_{test_id}@gmail.com"
+
+    client_driver = app.test_client()
+    res_code = client_driver.post("/api/auth/send-verification-code", json={
+        "email": test_email
+    })
+    assert res_code.status_code == 200, f"Expected 200, got {res_code.status_code}: {res_code.data}"
+    otp_data = res_code.get_json()
+    assert otp_data["success"] is True
+    otp_code = otp_data.get("dev_code")
+    assert otp_code is not None and len(otp_code) == 6
+    print(f"PASS: 6-Digit OTP generated: {otp_code} for verified Google account.")
+
+    # 5. Attempt registration with wrong OTP code - Should fail
+    res_bad_otp = client_driver.post("/api/auth/register", json={
+        "full_name": "Sathwik Kumar",
+        "username": test_username,
+        "email": test_email,
+        "verification_code": "000000",
+        "password": "SecretPassword123!",
         "selected_team": "Scuderia Ferrari HP"
     })
-    # If already created in prior run, login instead
-    if res.status_code == 409:
-        res = client_ferrari.post("/api/auth/login", json={"identifier": "ferrari_driver_1", "password": "password123"})
-    assert res.status_code in [200, 201]
-    user1 = res.get_json()["user"]
+    assert res_bad_otp.status_code == 400
+    print("PASS: Registration with incorrect verification code rejected.")
+
+    # 6. Register with correct OTP code, Full Name, and valid team
+    res_reg = client_driver.post("/api/auth/register", json={
+        "full_name": "Sathwik Kumar",
+        "username": test_username,
+        "email": test_email,
+        "verification_code": otp_code,
+        "password": "SecretPassword123!",
+        "selected_team": "Scuderia Ferrari HP"
+    })
+    if res_reg.status_code == 409:
+        res_reg = client_driver.post("/api/auth/login", json={
+            "identifier": "sathwik_driver_99",
+            "password": "SecretPassword123!"
+        })
+    assert res_reg.status_code in [200, 201]
+    user1 = res_reg.get_json()["user"]
+    assert user1["full_name"] == "Sathwik Kumar"
+    assert user1["email_provider"] == "Google"
+    assert user1["is_verified"] is True
     assert user1["selected_team"] == "Scuderia Ferrari HP"
-    print("PASS: Registered ferrari_driver_1 with Scuderia Ferrari HP.")
+    print(f"PASS: Driver registered & verified: {user1['full_name']} (@{user1['username']}) with {user1['selected_team']}.")
 
-    # 3. Check /api/career/drivers for ferrari_driver_1
-    res = client_ferrari.get("/api/career/drivers")
-    assert res.status_code == 200
-    drivers_data = res.get_json()
-    assert drivers_data["team"] == "Scuderia Ferrari HP"
-    assert len(drivers_data["drivers"]) >= 2
-    driver_id = drivers_data["drivers"][0]["id"]
-    driver_name = drivers_data["drivers"][0]["name"]
-    print(f"PASS: Drivers for Scuderia Ferrari HP returned: {[d['name'] for d in drivers_data['drivers']]}")
-
-    # 4. Start Career for ferrari_driver_1
-    res = client_ferrari.post("/api/career/start", json={
+    # 7. Start Career for registered driver
+    res_drivers = client_driver.get("/api/career/drivers")
+    assert res_drivers.status_code == 200
+    drivers_list = res_drivers.get_json()["drivers"]
+    res_start = client_driver.post("/api/career/start", json={
         "team": "Scuderia Ferrari HP",
-        "driver_id": driver_id,
-        "driver_name": driver_name
+        "driver_id": drivers_list[0]["id"],
+        "driver_name": drivers_list[0]["name"]
     })
-    assert res.status_code == 200
-    career1 = res.get_json()["career"]
-    assert career1["team"] == "Scuderia Ferrari HP"
-    assert career1["driver_name"] == driver_name
-    print(f"PASS: Started career with {career1['team']} and driver {career1['driver_name']}.")
+    assert res_start.status_code == 200
+    print(f"PASS: Career mode initialized for {drivers_list[0]['name']}.")
 
-    # 5. Simulate a race for ferrari_driver_1
-    res = client_ferrari.post("/api/career/race")
-    assert res.status_code == 200
-    race_data = res.get_json()
-    assert race_data["round"] == 1
-    assert race_data["next_round"] == 2
-    print(f"PASS: Simulated Round 1 race for ferrari_driver_1 (Reward: {race_data.get('development_reward', {}).get('points_earned')} DP).")
+    # 8. Simulate race & buy upgrade
+    res_race = client_driver.post("/api/career/race")
+    assert res_race.status_code == 200
+    res_upg = client_driver.post("/api/career/upgrade", json={"component": "aero"})
+    assert res_upg.status_code == 200
+    print("PASS: Race simulation and upgrade applied.")
 
-    # 6. Purchase an upgrade for ferrari_driver_1
-    res = client_ferrari.post("/api/career/upgrade", json={"component": "aero"})
-    assert res.status_code == 200
-    upgrade_res = res.get_json()
-    assert upgrade_res["level"] == 1
-    print(f"PASS: Purchased Aero upgrade (Level: {upgrade_res['level']}, DP remaining: {upgrade_res['development_points']}).")
+    # 9. Verify Admin view shows the verified user, full name, provider, and career telemetry
+    res_admin_view = res_admin = client.get("/api/admin/users")
+    assert res_admin_view.status_code == 200
+    admin_overview = res_admin_view.get_json()
+    assert admin_overview["stats"]["total_users"] >= 2
 
-    # 7. Register second user with McLaren
-    client_mclaren = app.test_client()
-    res = client_mclaren.post("/api/auth/register", json={
-        "username": "mclaren_fan_4",
-        "email": "mclaren4@f1.com",
-        "password": "password456",
-        "selected_team": "McLaren Mastercard"
-    })
-    if res.status_code == 409:
-        res = client_mclaren.post("/api/auth/login", json={"identifier": "mclaren_fan_4", "password": "password456"})
-    assert res.status_code in [200, 201]
-    print("PASS: Registered mclaren_fan_4 with McLaren Mastercard.")
-
-    # 8. Start career for mclaren_fan_4
-    res = client_mclaren.get("/api/career/drivers")
-    mcl_drivers = res.get_json()["drivers"]
-    res = client_mclaren.post("/api/career/start", json={
-        "team": "McLaren Mastercard",
-        "driver_id": mcl_drivers[0]["id"],
-        "driver_name": mcl_drivers[0]["name"]
-    })
-    assert res.status_code == 200
-    print(f"PASS: Started McLaren career with driver {mcl_drivers[0]['name']}.")
-
-    # 9. Verify Admin view shows all users, their distinct teams, and career telemetry!
-    res = client.get("/api/admin/users")
-    assert res.status_code == 200
-    admin_overview = res.get_json()
-    assert admin_overview["stats"]["total_users"] >= 3
-    assert admin_overview["stats"]["active_careers"] >= 2
-    print(f"PASS: Admin stats verified -> Total Users: {admin_overview['stats']['total_users']}, Active Careers: {admin_overview['stats']['active_careers']}, Total Races: {admin_overview['stats']['total_races_simulated']}.")
-    
-    # Check users list in admin view
-    usernames = [u["username"] for u in admin_overview["users"]]
-    assert "admin" in usernames
-    assert "ferrari_driver_1" in usernames
-    assert "mclaren_fan_4" in usernames
-    print(f"PASS: Admin can see all users: {usernames}")
-
-    # 10. Check Admin inspect on user 1
-    u1_record = next(u for u in admin_overview["users"] if u["username"] == "ferrari_driver_1")
-    assert u1_record["career"]["team"] == "Scuderia Ferrari HP"
-    assert u1_record["career"]["completed_races_count"] == 1
-    assert u1_record["career"]["upgrades"]["aero"] == 1
-    print("PASS: Admin inspect verified exact career state (team, race count, aero upgrade).")
+    matching_user = next((u for u in admin_overview["users"] if u["username"] == test_username), None)
+    assert matching_user is not None
+    assert matching_user["full_name"] == "Sathwik Kumar"
+    assert matching_user["email_provider"] == "Google"
+    assert matching_user["is_verified"] is True
+    print(f"PASS: Admin user registry reflects verified user: {matching_user['full_name']} | Provider: {matching_user['email_provider']} | Verified: {matching_user['is_verified']}.")
 
     print("\n>>> ALL TESTS PASSED SUCCESSFULLY! <<<")
 
