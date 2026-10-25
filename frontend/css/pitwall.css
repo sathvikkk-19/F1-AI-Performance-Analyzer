@@ -968,3 +968,505 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* =========================================================
+   PRE-RACE STARTING TYRE & WEATHER STRATEGY MODAL
+   ========================================================= */
+.prerace-modal-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(3, 7, 18, 0.94);
+    backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.25s ease-out;
+}
+
+.prerace-modal-card {
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(10, 15, 30, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 1080px;
+    max-height: 92vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(225, 6, 0, 0.15);
+    padding: 28px 32px;
+}
+
+.prerace-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+}
+
+.prerace-kicker {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--red);
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.prerace-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.prerace-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.prerace-meta-badges {
+    display: flex;
+    gap: 10px;
+}
+
+.prerace-badge {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--gold);
+}
+
+/* Track Condition Toggles */
+.prerace-condition-section {
+    margin-bottom: 20px;
+}
+
+.prerace-section-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.prerace-condition-toggles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.prerace-cond-btn {
+    padding: 12px 14px;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    color: #cbd5e1;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.prerace-cond-btn:hover {
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.prerace-cond-btn.active {
+    border-color: var(--cyan);
+    background: rgba(6, 182, 212, 0.15);
+    box-shadow: 0 0 16px rgba(6, 182, 212, 0.25);
+    color: #ffffff;
+}
+
+.prerace-cond-btn.active.cond-damp {
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.18);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+}
+
+.prerace-cond-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.prerace-cond-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.35;
+}
+
+/* Tactical Dilemma Banner */
+.prerace-dilemma-card {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(239, 68, 68, 0.12));
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    animation: pulseWarning 2s infinite alternate;
+}
+
+.prerace-dilemma-header {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.prerace-dilemma-body {
+    font-size: 12px;
+    color: #e2e8f0;
+    line-height: 1.5;
+}
+
+.prerace-dilemma-highlight {
+    color: #34d399;
+    font-weight: 600;
+}
+
+.prerace-dilemma-risk {
+    color: #f87171;
+    font-weight: 600;
+}
+
+/* Tyre Compounds Selection Grid */
+.prerace-compounds-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.prerace-compound-card {
+    background: rgba(15, 23, 42, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 16px 12px;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.prerace-compound-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.prerace-compound-card.active {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+.prerace-compound-card.active.card-soft {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.prerace-compound-card.active.card-medium {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.15);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+}
+
+.prerace-compound-card.active.card-hard {
+    border-color: #e2e8f0;
+    background: rgba(226, 232, 240, 0.15);
+    box-shadow: 0 0 20px rgba(226, 232, 240, 0.35);
+}
+
+.prerace-compound-card.active.card-inter {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.prerace-compound-card.active.card-wet {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.compound-badge-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.badge-soft { background: #ef4444; color: #ffffff; box-shadow: 0 0 14px rgba(239, 68, 68, 0.6); }
+.badge-medium { background: #f59e0b; color: #000000; box-shadow: 0 0 14px rgba(245, 158, 11, 0.6); }
+.badge-hard { background: #e2e8f0; color: #000000; box-shadow: 0 0 14px rgba(226, 232, 240, 0.6); }
+.badge-inter { background: #10b981; color: #ffffff; box-shadow: 0 0 14px rgba(16, 185, 129, 0.6); }
+.badge-wet { background: #3b82f6; color: #ffffff; box-shadow: 0 0 14px rgba(59, 130, 246, 0.6); }
+
+.prerace-compound-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.prerace-compound-laps {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.prerace-compound-desc {
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.35;
+    text-align: center;
+    min-height: 58px;
+}
+
+.prerace-selected-pill {
+    margin-top: 10px;
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    display: inline-block;
+}
+
+.prerace-compound-card.active .prerace-selected-pill {
+    background: #10b981;
+    color: #ffffff;
+    font-weight: 800;
+}
+
+/* Stint Disclaimer */
+.prerace-disclaimer-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+/* Strategic Summary Bar */
+.prerace-summary-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+}
+
+.prerace-summary-text strong {
+    color: var(--gold);
+}
+
+.prerace-action-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-prerace-confirm {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--red), #b91c1c);
+    border: 1px solid rgba(239, 68, 68, 0.6);
+    border-radius: 6px;
+    color: #ffffff;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 18px rgba(225, 6, 0, 0.4);
+}
+
+.btn-prerace-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(225, 6, 0, 0.6);
+}
+
+.btn-prerace-cancel {
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #cbd5e1;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-prerace-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+/* =========================================================
+   IN-COCKPIT PIT STOP TYRE COMPOUND SELECTOR PILLS
+   ========================================================= */
+.pit-compound-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.pit-compound-header span:last-child {
+    color: var(--gold);
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.pit-compound-pills {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.pit-compound-pill {
+    padding: 8px 4px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.2s;
+}
+
+.pit-compound-pill:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.pit-compound-pill.active {
+    border-width: 2px;
+    transform: scale(1.04);
+}
+
+.pit-compound-pill.tyre-soft.active {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.22);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.pit-compound-pill.tyre-medium.active {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.22);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.pit-compound-pill.tyre-hard.active {
+    border-color: #e2e8f0;
+    background: rgba(226, 232, 240, 0.22);
+    box-shadow: 0 0 10px rgba(226, 232, 240, 0.4);
+}
+
+.pit-compound-pill.tyre-inter.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.22);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.pit-compound-pill.tyre-wet.active {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.22);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.pit-compound-pill .pill-badge {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.pit-compound-pill.tyre-soft .pill-badge { background: #ef4444; color: #fff; }
+.pit-compound-pill.tyre-medium .pill-badge { background: #f59e0b; color: #000; }
+.pit-compound-pill.tyre-hard .pill-badge { background: #e2e8f0; color: #000; }
+.pit-compound-pill.tyre-inter .pill-badge { background: #10b981; color: #fff; }
+.pit-compound-pill.tyre-wet .pill-badge { background: #3b82f6; color: #fff; }
+
+.pit-compound-pill .pill-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: #cbd5e1;
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .prerace-compounds-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .prerace-condition-toggles {
+        grid-template-columns: 1fr;
+    }
+    .pit-compound-pills {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

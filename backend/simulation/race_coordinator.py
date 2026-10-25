@@ -1247,6 +1247,15 @@ class RaceCoordinator:
                 )
             )
 
+            # Apply starting compound override for player driver if requested
+            if strategy_inputs and strategy_inputs.get("starting_compound"):
+                is_player = (
+                    driver_id == strategy_inputs.get("player_driver_id")
+                    or str(entry.get("driver", "")).strip().lower() == str(strategy_inputs.get("player_driver_name", "")).strip().lower()
+                )
+                if is_player and stints and len(stints) > 0:
+                    stints[0]["compound"] = strategy_inputs["starting_compound"]
+
             race_states[
                 driver_id
             ]["stints"] = stints

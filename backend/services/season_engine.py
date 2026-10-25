@@ -270,6 +270,7 @@ class SeasonEngine:
         weather_profiles: Optional[Dict[str, List[Dict[str, Any]]]] = None,
         previous_driver_standings: Optional[Dict[Any, Dict[str, Any]]] = None,
         previous_constructor_standings: Optional[Dict[Any, Dict[str, Any]]] = None,
+        strategy_inputs: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
 
         circuits = circuits or self._load_circuits()
@@ -312,6 +313,16 @@ class SeasonEngine:
         laps = self._race_laps(circuit)
         base_weather = self._default_weather(circuit)
 
+        # Handle starting track condition override if specified in strategy_inputs
+        if strategy_inputs:
+            cond = str(strategy_inputs.get("starting_track_condition") or "").lower()
+            if cond in {"damp", "drying"}:
+                base_weather = "Mixed"
+            elif cond == "wet":
+                base_weather = "Wet"
+            elif cond == "dry":
+                base_weather = "Dry"
+
         custom_profile = self._find_weather_profile(
             weather_profiles,
             circuit_name,
@@ -323,6 +334,7 @@ class SeasonEngine:
             weather=base_weather,
             laps=laps,
             weather_profile=custom_profile,
+            strategy_inputs=strategy_inputs,
         )
 
         points_result = self._apply_points(

@@ -678,6 +678,19 @@ def run_career_race():
         "team_id",
     )
 
+    payload = request.get_json(silent=True) or {}
+    tactics = payload.get("tactics") or {}
+    tactical_bonus = int(tactics.get("bonus_dp", 0))
+    if tactics.get("tactical_success") and tactical_bonus == 0:
+        tactical_bonus = 2
+
+    strategy_inputs = {
+        "starting_compound": tactics.get("starting_compound"),
+        "starting_track_condition": tactics.get("starting_track_condition"),
+        "player_driver_id": career.get("driver_id"),
+        "player_driver_name": career.get("driver_name"),
+    }
+
     try:
         result = season_engine.run_single_round(
             circuits=circuits,
@@ -686,6 +699,7 @@ def run_career_race():
             round_number=round_number,
             previous_driver_standings=previous_driver,
             previous_constructor_standings=previous_constructor,
+            strategy_inputs=strategy_inputs,
         )
     except Exception as exc:
         return jsonify({
@@ -711,12 +725,6 @@ def run_career_race():
         "constructor_standings",
         [],
     )
-
-    payload = request.get_json(silent=True) or {}
-    tactics = payload.get("tactics") or {}
-    tactical_bonus = int(tactics.get("bonus_dp", 0))
-    if tactics.get("tactical_success") and tactical_bonus == 0:
-        tactical_bonus = 2
 
     driver_result = _race_driver_points(
         race.get("classification", []),

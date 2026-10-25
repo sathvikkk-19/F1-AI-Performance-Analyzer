@@ -83,6 +83,13 @@ class PitwallController {
         this.pendingPit = false;
         this.pitNextCompound = "Hard";
 
+        // Pre-Race Starting Strategy & Weather Choice
+        this.careerData = null;
+        this.selectedStartingCompound = "Medium";
+        this.selectedTrackCondition = "Dry"; // "Dry" | "Damp" | "Wet"
+        this.trackMoisture = 0; // 0% to 100%
+        this.isDryingTrack = false;
+
         // Dynamic Timing Grid & Live Standings
         this.liveDrivers = [];
         this.currentWeather = "Dry";
@@ -101,21 +108,248 @@ class PitwallController {
         this.eventsTriggered = new Set();
     }
 
-    // Launch Pit Wall Command
+    // Launch Pit Wall Command - Opens Pre-Race Starting Tyre Strategy Dialog
     async launch(careerData) {
         const modal = document.getElementById("pitwallModal");
         if (!modal) return;
 
+        this.careerData = careerData;
         this.myTeam = (careerData && careerData.my_team) || getMyTeam();
         this.driverName = (careerData && careerData.career && careerData.career.driver_name) || "My Driver";
         this.driverId = careerData && careerData.career && careerData.career.driver_id;
 
-        // Show modal in loading state
+        // Identify upcoming race info
+        const nextRace = (careerData && (careerData.next_race || careerData.current_race)) || {};
+        const baseWeather = nextRace.weather || "Dry";
+
+        if (baseWeather === "Mixed" || baseWeather === "Wet") {
+            this.selectedTrackCondition = "Damp";
+            this.selectedStartingCompound = "Intermediate";
+        } else {
+            this.selectedTrackCondition = "Dry";
+            this.selectedStartingCompound = "Medium";
+        }
+        this.pitNextCompound = "Hard";
+
+        // Show modal with the Pre-Race Starting Tyre & Weather Strategy screen
         modal.style.display = "block";
+        this._renderPreRaceStrategyModal();
+    }
+
+    // Renders the high-tech Pre-Race Starting Tyre & Weather Strategy Screen
+    _renderPreRaceStrategyModal() {
+        const modal = document.getElementById("pitwallModal");
+        if (!modal) return;
+
+        const nextRace = (this.careerData && (this.careerData.next_race || this.careerData.current_race)) || {};
+        const circuitName = nextRace.circuit || "Grand Prix Circuit";
+        const country = nextRace.country || "Formula 1";
+        const roundNum = nextRace.round || (this.careerData && this.careerData.career && this.careerData.career.current_round) || 1;
+
+        // Compound Specs and Detailed Predictions
+        const compoundDetails = {
+            "Soft": {
+                name: "SOFT (C4)",
+                spec: "Red · High Grip Sprint",
+                badge: "S",
+                badgeClass: "badge-soft",
+                cardClass: "card-soft",
+                usableLaps: "14 - 17 Laps",
+                cliffLap: "Lap 18",
+                paceDelta: "-0.65s (Fastest)",
+                predictedOutcome: "Aggressive start off grid with maximum launch traction. Fast tire warm-up. High early overtake potential, but high thermal degradation requires early pit stop.",
+                dampSuitability: "⚠️ Greasy Track Risk: Extreme wheelspin & sliding on cold damp tarmac (Laps 1-2). If you survive, gains 3.5s/lap once racing line dries!"
+            },
+            "Medium": {
+                name: "MEDIUM (C3)",
+                spec: "Yellow · Prime Baseline",
+                badge: "M",
+                badgeClass: "badge-medium",
+                cardClass: "card-medium",
+                usableLaps: "24 - 28 Laps",
+                cliffLap: "Lap 30",
+                paceDelta: "0.00s (Baseline)",
+                predictedOutcome: "Optimal baseline balancing launch traction with stint longevity. High tactical flexibility for 1-stop or 2-stop overcut/undercut windows.",
+                dampSuitability: "Moderate wheelspin on damp surface. Stable tyre warm-up; strong transition compound once drying line forms."
+            },
+            "Hard": {
+                name: "HARD (C2)",
+                spec: "White · Long Endurance",
+                badge: "H",
+                badgeClass: "badge-hard",
+                cardClass: "card-hard",
+                usableLaps: "36 - 45 Laps",
+                cliffLap: "Lap 48",
+                paceDelta: "+0.55s (Low Deg)",
+                predictedOutcome: "Maximum stint endurance with ultra-low thermal fall-off. Slower warmup over opening 2 laps, but enables deep overcut while rivals pit.",
+                dampSuitability: "Low initial grip on damp tarmac (+3.5s loss). Long endurance once track is fully dry."
+            },
+            "Intermediate": {
+                name: "INTERMEDIATE",
+                spec: "Green · Damp / Wet Dispersal",
+                badge: "I",
+                badgeClass: "badge-inter",
+                cardClass: "card-inter",
+                usableLaps: "Damp: 22-26L | Dry: 4-6L",
+                cliffLap: "Lap 6 on Dry",
+                paceDelta: "Optimal in Damp",
+                predictedOutcome: "Supreme grip and traction off the grid on greasy or drying tarmac (disperses 30L/sec). Zero wheelspin.",
+                dampSuitability: "✅ Prime for Damp Starts: Safe launch! Caution: If track dries, tyres blister and overheat within 5 laps, forcing an early pit stop!"
+            },
+            "Full Wet": {
+                name: "FULL WET",
+                spec: "Blue · Standing Water Heavy",
+                badge: "W",
+                badgeClass: "badge-wet",
+                cardClass: "card-wet",
+                usableLaps: "Wet: 28-35L | Dry: 3-4L",
+                cliffLap: "Lap 4 on Dry",
+                paceDelta: "Standing Water Safety",
+                predictedOutcome: "Extreme water clearing (85L/sec) for active downpours. Extreme thermal destruction and pace loss on drying asphalt.",
+                dampSuitability: "Excessive rubber movement and massive overheating on drying track. Only use for monsoon conditions."
+            }
+        };
+
+        const activeCompound = compoundDetails[this.selectedStartingCompound] || compoundDetails["Medium"];
+
+        modal.innerHTML = `
+            <div class="prerace-modal-wrap">
+                <div class="prerace-modal-card">
+                    <!-- Header -->
+                    <div class="prerace-header">
+                        <div>
+                            <div class="prerace-kicker">
+                                <span>🏁 FIA FORMULA 1 WORLD CHAMPIONSHIP</span>
+                                <span>·</span>
+                                <span>ROUND ${roundNum}</span>
+                            </div>
+                            <h2 class="prerace-title">${escapeHtml(circuitName.toUpperCase())}</h2>
+                            <div class="prerace-subtitle">${escapeHtml(country)} · Driver: <strong>${escapeHtml(this.driverName)}</strong> (${escapeHtml(this.myTeam)})</div>
+                        </div>
+                        <div class="prerace-meta-badges">
+                            <div class="prerace-badge">GRID STRATEGY CENTER</div>
+                        </div>
+                    </div>
+
+                    <!-- Track & Weather Condition Bar -->
+                    <div class="prerace-condition-section">
+                        <div class="prerace-section-label">
+                            <span>1. STARTING TRACK &amp; WEATHER CONDITIONS</span>
+                            <span style="color:var(--gold); font-size:10px;">TACTICAL METEOROLOGY OVERRIDE</span>
+                        </div>
+                        <div class="prerace-condition-toggles">
+                            <button type="button" class="prerace-cond-btn ${this.selectedTrackCondition === 'Dry' ? 'active' : ''}" onclick="window.pitwall.setStartingTrackCondition('Dry')">
+                                <div class="prerace-cond-title">☀️ DRY ASPHALT</div>
+                                <div class="prerace-cond-desc">34°C Track Temp · 0% Moisture · Maximum mechanical grip for slicks</div>
+                            </button>
+                            <button type="button" class="prerace-cond-btn cond-damp ${this.selectedTrackCondition === 'Damp' ? 'active' : ''}" onclick="window.pitwall.setStartingTrackCondition('Damp')">
+                                <div class="prerace-cond-title">🌦️ DAMP / DRYING TRACK</div>
+                                <div class="prerace-cond-desc">45% Moisture · Pre-race drizzle stopped · Greasy surface with drying line</div>
+                            </button>
+                            <button type="button" class="prerace-cond-btn ${this.selectedTrackCondition === 'Wet' ? 'active' : ''}" onclick="window.pitwall.setStartingTrackCondition('Wet')">
+                                <div class="prerace-cond-title">🌧️ ACTIVE RAINFALL</div>
+                                <div class="prerace-cond-desc">85% Moisture · Rain falling · Standing water and heavy spray</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tactical Dilemma Banner (Drying Track) -->
+                    ${this.selectedTrackCondition === 'Damp' ? `
+                        <div class="prerace-dilemma-card">
+                            <div class="prerace-dilemma-header">
+                                <span>⚡</span>
+                                <span>TACTICAL DILEMMA: PRE-RACE DRIZZLE HAS STOPPED</span>
+                            </div>
+                            <div class="prerace-dilemma-body">
+                                Track moisture is at <strong>45%</strong> and evaporating quickly.
+                                <br>&bull; <span class="prerace-dilemma-highlight">Option A (Green Inters):</span> Guaranteed grip off the grid (Laps 1-3) with zero wheelspin. <em>However</em>, as the track dries, Inters will overheat and blister in 4-6 laps, forcing an early pit stop (22s loss).
+                                <br>&bull; <span class="prerace-dilemma-risk">Option B (Slicks Gamble - Soft/Medium):</span> High risk of wheelspin and losing 1-2 positions off the line on greasy tarmac. <em>However</em>, if you nurse the car, once the dry line forms on Lap 4, you avoid an early pit stop, lap <strong>3.5s faster</strong> than melting wet tyres, and leapfrog the entire field!
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Starting Tyre Compounds Grid -->
+                    <div class="prerace-section-label">
+                        <span>2. SELECT STARTING TYRE COMPOUND (PIRELLI 2026)</span>
+                        <span style="color:var(--cyan); font-size:10px;">CLICK TO INSPECT PREDICTED STINT &amp; PERFORMANCE</span>
+                    </div>
+
+                    <div class="prerace-compounds-grid">
+                        ${Object.keys(compoundDetails).map(comp => {
+                            const c = compoundDetails[comp];
+                            const isSelected = this.selectedStartingCompound === comp;
+                            return `
+                                <div class="prerace-compound-card ${c.cardClass} ${isSelected ? 'active' : ''}" onclick="window.pitwall.selectStartingCompound('${comp}')">
+                                    <div>
+                                        <div class="compound-badge-circle ${c.badgeClass}">${c.badge}</div>
+                                        <div class="prerace-compound-name">${c.name}</div>
+                                        <div class="prerace-compound-laps">EST. ${c.usableLaps}</div>
+                                        <div class="prerace-compound-desc">${escapeHtml(c.predictedOutcome)}</div>
+                                    </div>
+                                    <div class="prerace-selected-pill">${isSelected ? '✓ SELECTED START' : 'SELECT'}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <!-- Dynamic Stint Disclaimer Notice -->
+                    <div class="prerace-disclaimer-card">
+                        ℹ️ <strong>ENGINEERING NOTICE:</strong> Stint longevity (e.g. ${activeCompound.usableLaps}) and predicted outcomes are strategic estimates. Real-world tyre degradation will fluctuate dynamically during the Grand Prix based on dirty air, track evolution, tire management, and your Power Unit deployment mode (Strat 1 Attack / Strat 5 Balanced / Strat 9 Conserve).
+                    </div>
+
+                    <!-- Summary & Action Bar -->
+                    <div class="prerace-summary-bar">
+                        <div class="prerace-summary-text">
+                            STARTING TYRE: <strong>${activeCompound.name}</strong> &bull;
+                            STINT ESTIMATE: <strong>${activeCompound.usableLaps}</strong> &bull;
+                            SURFACE: <strong>${this.selectedTrackCondition.toUpperCase()}</strong>
+                        </div>
+                        <div class="prerace-action-btns">
+                            <button type="button" class="btn-prerace-cancel" onclick="window.pitwall.close()">CANCEL</button>
+                            <button type="button" class="btn-prerace-confirm" onclick="window.pitwall.confirmPreRaceStrategy()">
+                                CONFIRM STARTING STRATEGY &amp; START RACE 🏁
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Toggle starting tyre selection
+    selectStartingCompound(compound) {
+        this.selectedStartingCompound = compound;
+        pitwallAudio.playModeClick();
+        this._renderPreRaceStrategyModal();
+    }
+
+    // Toggle starting track condition
+    setStartingTrackCondition(cond) {
+        this.selectedTrackCondition = cond;
+        pitwallAudio.playModeClick();
+        if (cond === "Damp" && !["Soft", "Intermediate"].includes(this.selectedStartingCompound)) {
+            this.selectedStartingCompound = "Intermediate";
+        } else if (cond === "Dry" && ["Intermediate", "Full Wet"].includes(this.selectedStartingCompound)) {
+            this.selectedStartingCompound = "Medium";
+        }
+        this._renderPreRaceStrategyModal();
+    }
+
+    // Confirm Pre-Race Starting Strategy and Launch Live Cockpit
+    async confirmPreRaceStrategy() {
+        pitwallAudio.playModeClick();
+        await this._startRaceSession();
+    }
+
+    // Execute race simulation with chosen starting compound & weather
+    async _startRaceSession() {
+        const modal = document.getElementById("pitwallModal");
+        if (!modal) return;
+
         this._renderLoading();
 
         try {
-            // Run race simulation on backend
+            // Run race simulation on backend with chosen starting compound & track condition
             const response = await fetch(`${API_BASE_URL}/api/career/race`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -124,6 +358,8 @@ class PitwallController {
                     tactics: {
                         mode: "pitwall_interactive",
                         tactical_success: true,
+                        starting_compound: this.selectedStartingCompound,
+                        starting_track_condition: this.selectedTrackCondition,
                         bonus_dp: 2
                     }
                 })
@@ -142,8 +378,36 @@ class PitwallController {
             this.speed = 1;
             this.eventsTriggered.clear();
             this.decisionsMade = [];
-            this.tacticalBonusDP = 2; // Baseline Tactical Command participation bonus
-            this.currentWeather = this.raceData.weather || "Dry";
+            this.tacticalBonusDP = 2;
+
+            // Setup track moisture & weather condition
+            if (this.selectedTrackCondition === "Damp") {
+                this.trackMoisture = 48;
+                this.isDryingTrack = true;
+                this.currentWeather = "Damp (Drying)";
+            } else if (this.selectedTrackCondition === "Wet") {
+                this.trackMoisture = 85;
+                this.isDryingTrack = false;
+                this.currentWeather = "Wet";
+            } else {
+                this.trackMoisture = 0;
+                this.isDryingTrack = false;
+                this.currentWeather = "Dry";
+            }
+
+            // Set starting compound to user selection
+            this.tyreCompound = this.selectedStartingCompound;
+            this.tyreWear = 100;
+            this.tyreAge = 1;
+            this.batteryERS = 90;
+            this.engineMode = "balanced";
+            this.pendingPit = false;
+
+            // Default queued pit compound to logical progression
+            if (this.tyreCompound === "Soft") this.pitNextCompound = "Medium";
+            else if (this.tyreCompound === "Hard") this.pitNextCompound = "Medium";
+            else if (this.tyreCompound === "Intermediate") this.pitNextCompound = "Medium";
+            else this.pitNextCompound = "Hard";
 
             // Reset Stewards & Penalties
             this.trackLimitsStrikes = 0;
@@ -153,25 +417,12 @@ class PitwallController {
             this.pendingInvestigation = null;
             this._hideStewardBanner();
 
-            // Derive starting compound from strategy or default to Medium
-            const playerStrat = (this.raceData.strategies || []).find(s => s.driver_id === this.driverId || s.driver === this.driverName);
-            if (playerStrat && Array.isArray(playerStrat.stints) && playerStrat.stints.length > 0) {
-                this.tyreCompound = playerStrat.stints[0].compound || "Medium";
-            } else {
-                this.tyreCompound = "Medium";
-            }
-            this.tyreWear = 100;
-            this.tyreAge = 1;
-            this.batteryERS = 90;
-            this.engineMode = "balanced";
-            this.pendingPit = false;
-
             // Initialize Live Dynamic Timing Grid
             this._initLiveDrivers();
 
             this._renderFullCockpit();
             pitwallAudio.playRadioChirp();
-            this._addRadioMessage(`RACE ENGINEER: "Radio check, ${this.driverName}. We are on ${this.tyreCompound} tyres for Stint 1. Strategy is Plan A."`);
+            this._addRadioMessage(`RACE ENGINEER: "Radio check, ${this.driverName}. Starting on ${this.tyreCompound} tyres on a ${this.currentWeather} surface. Lights out and away we go!"`);
 
             this._startLoop();
         } catch (err) {
@@ -278,9 +529,10 @@ class PitwallController {
                     </div>
 
                     <div class="pitwall-weather-stats">
-                        <div>TRACK: <strong id="pitwallTrackTemp">34°C</strong></div>
+                        <div>TRACK: <strong id="pitwallTrackTemp">${this.isDryingTrack ? "30°C" : "34°C"}</strong></div>
                         <div>AIR: <strong>25°C</strong></div>
                         <div>CONDITIONS: <strong id="pitwallWeatherText">${escapeHtml(weather)}</strong></div>
+                        ${this.isDryingTrack ? `<div>MOISTURE: <strong id="pitwallMoistureText" style="color:#38bdf8;">${this.trackMoisture}% (Drying Line)</strong></div>` : ''}
                     </div>
 
                     <!-- Playback controls -->
@@ -377,11 +629,37 @@ class PitwallController {
                             </div>
                         </div>
 
-                        <!-- Manual Pit Call Button -->
+                        <!-- Manual Pit Call & Compound Selection Section -->
                         <div class="pitwall-pitcall-section">
-                            <button type="button" class="pitwall-pitcall-btn" id="btnPitCall" onclick="window.pitwall.triggerManualPitCall()">
+                            <div class="pit-compound-header">
+                                <span>NEXT TYRE COMPOUND (BOX SELECTION)</span>
+                                <span id="pitQueuedCompoundText">QUEUED: ${this.pitNextCompound.toUpperCase()}</span>
+                            </div>
+                            <div class="pit-compound-pills" id="pitCompoundPills">
+                                <button type="button" class="pit-compound-pill tyre-soft ${this.pitNextCompound === 'Soft' ? 'active' : ''}" onclick="window.pitwall.selectPitCompound('Soft')" title="Soft Compound (14-17 Laps)">
+                                    <span class="pill-badge">S</span>
+                                    <span class="pill-label">SOFT (14L)</span>
+                                </button>
+                                <button type="button" class="pit-compound-pill tyre-medium ${this.pitNextCompound === 'Medium' ? 'active' : ''}" onclick="window.pitwall.selectPitCompound('Medium')" title="Medium Compound (24-28 Laps)">
+                                    <span class="pill-badge">M</span>
+                                    <span class="pill-label">MED (26L)</span>
+                                </button>
+                                <button type="button" class="pit-compound-pill tyre-hard ${this.pitNextCompound === 'Hard' ? 'active' : ''}" onclick="window.pitwall.selectPitCompound('Hard')" title="Hard Compound (36-45 Laps)">
+                                    <span class="pill-badge">H</span>
+                                    <span class="pill-label">HARD (40L)</span>
+                                </button>
+                                <button type="button" class="pit-compound-pill tyre-inter ${this.pitNextCompound === 'Intermediate' ? 'active' : ''}" onclick="window.pitwall.selectPitCompound('Intermediate')" title="Intermediate Compound (Damp Surface)">
+                                    <span class="pill-badge">I</span>
+                                    <span class="pill-label">INTER (DAMP)</span>
+                                </button>
+                                <button type="button" class="pit-compound-pill tyre-wet ${this.pitNextCompound === 'Full Wet' ? 'active' : ''}" onclick="window.pitwall.selectPitCompound('Full Wet')" title="Full Wet Compound (Heavy Standing Water)">
+                                    <span class="pill-badge">W</span>
+                                    <span class="pill-label">WET (RAIN)</span>
+                                </button>
+                            </div>
+                            <button type="button" class="pitwall-pitcall-btn ${this.pendingPit ? 'pending' : ''}" id="btnPitCall" onclick="window.pitwall.triggerManualPitCall()">
                                 <span>🏎</span>
-                                <span id="pitCallBtnText">BOX THIS LAP [CALL IN]</span>
+                                <span id="pitCallBtnText">${this.pendingPit ? `BOXING THIS LAP [FITTING ${this.pitNextCompound.toUpperCase()}]` : `BOX THIS LAP [CALL IN]`}</span>
                             </button>
                         </div>
                     </section>
@@ -473,7 +751,8 @@ class PitwallController {
                 this._hideStewardBanner();
             }
 
-            this._addRadioMessage(`RACE ENGINEER: "Clean stop! ${stopDuration.toFixed(1)} seconds.${penaltyText} Out out out! Fresh ${this.tyreCompound} tyres fitted."`);
+            const estLaps = this.tyreCompound === "Soft" ? "14-17" : (this.tyreCompound === "Medium" ? "24-28" : (this.tyreCompound === "Hard" ? "36-45" : (this.tyreCompound === "Intermediate" ? "DAMP" : "WET")));
+            this._addRadioMessage(`RACE ENGINEER: "Clean stop! ${stopDuration.toFixed(1)}s.${penaltyText} Fresh ${this.tyreCompound} tyres fitted. Target stint: ${estLaps} laps. Out out out!"`);
 
             const btn = document.getElementById("pitCallBtnText");
             if (btn) btn.textContent = "BOX THIS LAP [CALL IN]";
@@ -488,6 +767,56 @@ class PitwallController {
                 playerDriver.tyreAge = 1;
                 playerDriver.pitStops += 1;
                 playerDriver.gapToLeader += pitLoss;
+            }
+        }
+
+        // 2b. Track moisture evaporation and drying line evolution
+        if (this.isDryingTrack && this.trackMoisture > 0) {
+            this.trackMoisture = Math.max(0, this.trackMoisture - 8);
+            const moistureEl = document.getElementById("pitwallMoistureText");
+            if (moistureEl) {
+                if (this.trackMoisture > 0) {
+                    moistureEl.textContent = `${this.trackMoisture}% (Drying Line)`;
+                } else {
+                    moistureEl.textContent = "0% (Dry Line)";
+                }
+            }
+            if (this.trackMoisture <= 12 && this.isDryingTrack) {
+                this.currentWeather = "Dry";
+                this.isDryingTrack = false;
+                const weatherText = document.getElementById("pitwallWeatherText");
+                if (weatherText) weatherText.textContent = "Dry (Track Cleared)";
+            }
+        }
+
+        // 2c. Strategic Events on Damp / Drying Track
+        if (this.selectedTrackCondition === "Damp") {
+            const isSlick = ["Soft", "Medium", "Hard"].includes(this.tyreCompound);
+            if (lapNum === 2 && isSlick && !this.eventsTriggered.has("slick_damp_start")) {
+                this.eventsTriggered.add("slick_damp_start");
+                this._addRadioMessage(`RACE ENGINEER: "Low grip off the line on slicks! Wheelspin detected. Keep it on the black stuff, the dry line will appear soon!"`);
+            }
+            if (lapNum === 4 && isSlick && !this.eventsTriggered.has("slick_drying_advantage")) {
+                this.eventsTriggered.add("slick_drying_advantage");
+                this._addRadioMessage(`RACE ENGINEER: "Dry line has formed! You are 3.5s a lap faster than anyone on wet tyres! Inters are blistering, rivals are boxing!"`);
+                // AI drivers who started on Inters/Wets make emergency pit stops!
+                this.liveDrivers.forEach(d => {
+                    if (!d.isPlayer && (d.compound === "Intermediate" || d.compound === "Full Wet")) {
+                        d.compound = "Medium";
+                        d.pitStops += 1;
+                        d.gapToLeader += 21.8;
+                    }
+                });
+                // Re-sort positions
+                this.liveDrivers.sort((a, b) => a.gapToLeader - b.gapToLeader);
+                this.liveDrivers.forEach((d, idx) => {
+                    d.position = idx + 1;
+                    if (d.isPlayer) this.playerPos = d.position;
+                });
+            }
+            if (lapNum === 4 && (this.tyreCompound === "Intermediate" || this.tyreCompound === "Full Wet") && !this.eventsTriggered.has("inter_overheating")) {
+                this.eventsTriggered.add("inter_overheating");
+                this._addRadioMessage(`RACE ENGINEER: "Track is completely dry! The intermediate tyres are overheating and blistering! We need to box for slicks this lap!"`);
             }
         }
 
@@ -648,10 +977,24 @@ class PitwallController {
                 pace += Math.pow(cliffDelta / 6, 1.7) * 0.65;
             }
 
-            // Weather mismatch penalties
-            if (this.currentWeather === "Dry") {
-                if (driver.compound === "Intermediate") pace += 2.4;
-                else if (driver.compound === "Full Wet") pace += 4.5;
+            // Weather mismatch & track moisture dynamics
+            if (this.trackMoisture > 25) {
+                // Damp or greasy track (Laps 1-2)
+                if (["Soft", "Medium", "Hard"].includes(driver.compound)) {
+                    pace += (this.trackMoisture / 48.0) * 3.2; // Slicks slip on damp asphalt
+                } else if (driver.compound === "Intermediate") {
+                    pace -= 0.6; // Inters thrive on damp surface
+                }
+            } else if (this.trackMoisture > 10) {
+                // Drying line emerging (Laps 3-4)
+                if (["Soft", "Medium", "Hard"].includes(driver.compound)) {
+                    pace -= 1.6; // Slicks finding operating temperature
+                } else if (driver.compound === "Intermediate") {
+                    pace += 1.8; // Inters beginning to overheat
+                }
+            } else if (this.currentWeather === "Dry") {
+                if (driver.compound === "Intermediate") pace += 3.4; // Inters overheat on dry
+                else if (driver.compound === "Full Wet") pace += 5.5;
             } else if (this.currentWeather === "Wet") {
                 if (["Soft", "Medium", "Hard"].includes(driver.compound)) pace += 7.5; // Slicks in rain
             }
@@ -804,12 +1147,15 @@ class PitwallController {
         const spec = TYRE_SPECS[compound] || TYRE_SPECS["Medium"];
         let wear = spec.baseWearPerLap;
 
-        // Weather degradation effects
-        if (weather === "Dry") {
+        // Weather & track moisture degradation effects
+        if (this.trackMoisture <= 15 && (compound === "Intermediate" || compound === "Full Wet")) {
+            // Rapid thermal blistering on dry track
+            wear = spec.dryThermalDestruction || 11.2;
+        } else if (weather === "Dry") {
             if (compound === "Intermediate") wear = spec.dryThermalDestruction || 9.5;
             else if (compound === "Full Wet") wear = spec.dryThermalDestruction || 15.0;
-        } else if (weather === "Mixed") {
-            if (["Soft", "Medium", "Hard"].includes(compound)) wear *= 1.45;
+        } else if (weather === "Mixed" || this.trackMoisture > 15) {
+            if (["Soft", "Medium", "Hard"].includes(compound)) wear *= 1.35;
             else if (compound === "Full Wet") wear = spec.mixedWearPerLap || 5.8;
         } else if (weather === "Wet") {
             if (["Soft", "Medium", "Hard"].includes(compound)) wear *= 1.9;
@@ -1131,18 +1477,40 @@ class PitwallController {
         }
     }
 
+    // Select Tyre Compound to Fit at Next Pit Stop
+    selectPitCompound(compound) {
+        this.pitNextCompound = compound;
+        pitwallAudio.playModeClick();
+
+        // Update active class on HUD compound pills
+        document.querySelectorAll(".pit-compound-pill").forEach(p => p.classList.remove("active"));
+        const targetClass = compound === "Full Wet" ? "tyre-wet" : `tyre-${compound.toLowerCase()}`;
+        const targetPill = document.querySelector(`.pit-compound-pill.${targetClass}`);
+        if (targetPill) targetPill.classList.add("active");
+
+        const estLaps = compound === "Soft" ? "14-17" : (compound === "Medium" ? "24-28" : (compound === "Hard" ? "36-45" : (compound === "Intermediate" ? "DAMP" : "WET")));
+        const queuedEl = document.getElementById("pitQueuedCompoundText");
+        if (queuedEl) queuedEl.textContent = `QUEUED: ${compound.toUpperCase()} (EST. ${estLaps} LAPS)`;
+
+        if (this.pendingPit) {
+            const btnText = document.getElementById("pitCallBtnText");
+            if (btnText) btnText.textContent = `BOXING THIS LAP [FITTING ${compound.toUpperCase()}]`;
+        }
+
+        this._addRadioMessage(`RACE ENGINEER: "Pit crew informed: preparing fresh ${compound} tyres for the stop."`);
+    }
+
     // Manual Pit Stop Call
     triggerManualPitCall() {
-        if (this.pendingPit) return;
         this.pendingPit = true;
         pitwallAudio.playRadioChirp();
 
         const btnText = document.getElementById("pitCallBtnText");
-        if (btnText) btnText.textContent = "BOXING THIS LAP [CONFIRMED]";
+        if (btnText) btnText.textContent = `BOXING THIS LAP [FITTING ${this.pitNextCompound.toUpperCase()}]`;
         const btn = document.getElementById("btnPitCall");
         if (btn) btn.classList.add("pending");
 
-        this._addRadioMessage(`RACE ENGINEER: "Box box, box box! Confirming pit stop at end of this lap. Crew is ready with fresh tyres."`);
+        this._addRadioMessage(`RACE ENGINEER: "Box box, box box! Confirming pit stop for lap end. Crew is ready with fresh ${this.pitNextCompound} tyres!"`);
     }
 
     // Audio & Speed Toggles
