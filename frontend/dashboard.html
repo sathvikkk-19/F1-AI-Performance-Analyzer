@@ -404,6 +404,9 @@
                             <button id="careerTabCurrent" class="career-tab active" onclick="switchCareerRaceTab('current')">CURRENT RACE</button>
                             <button id="careerTabNext" class="career-tab" onclick="switchCareerRaceTab('next')">NEXT RACE</button>
                         </div>
+                        <button id="btnRaceInfo" class="career-start-btn" style="background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.5); color:#38bdf8; display:flex; align-items:center; gap:6px;" onclick="openRaceInfoModal()" title="View full telemetry & results breakdown for both drivers across all completed rounds">
+                            <span>📊</span> RACE INFO &amp; RESULTS
+                        </button>
                         <button id="launchPitWallButton" class="career-start-btn" style="background:linear-gradient(135deg, var(--red), #b91c1c); box-shadow:0 0 16px rgba(225,6,0,0.4);" onclick="launchPitWall()">
                             <span>⚡</span> ENTER PIT WALL COMMAND
                         </button>
@@ -413,14 +416,32 @@
                     </div>
 
                     <div class="career-stats">
-                        <div class="career-stat-card"><span>DRIVER POSITION</span><strong id="careerDriverPosition">--</strong></div>
-                        <div class="career-stat-card"><span>DRIVER POINTS</span><strong id="careerPoints">0</strong></div>
-                        <div class="career-stat-card"><span>WINS</span><strong id="careerWins">0</strong></div>
-                        <div class="career-stat-card"><span>PODIUMS</span><strong id="careerPodiums">0</strong></div>
+                        <div class="career-stat-card career-clickable-stat" onclick="openRaceInfoModal()" title="Click to view full race breakdown">
+                            <span>DRIVER POSITION</span>
+                            <strong id="careerDriverPosition">--</strong>
+                            <div class="stat-click-hint"><span>🔍</span> View Races</div>
+                        </div>
+                        <div class="career-stat-card career-clickable-stat" onclick="openRaceInfoModal()" title="Click to view points scored in each race">
+                            <span>DRIVER POINTS</span>
+                            <strong id="careerPoints">0</strong>
+                            <div class="stat-click-hint"><span>🔍</span> View Races</div>
+                        </div>
+                        <div class="career-stat-card career-clickable-stat" onclick="openRaceInfoModal()" title="Click to view race wins & podiums">
+                            <span>WINS</span>
+                            <strong id="careerWins">0</strong>
+                            <div class="stat-click-hint"><span>🔍</span> View Races</div>
+                        </div>
+                        <div class="career-stat-card career-clickable-stat" onclick="openRaceInfoModal()" title="Click to view podium breakdown">
+                            <span>PODIUMS</span>
+                            <strong id="careerPodiums">0</strong>
+                            <div class="stat-click-hint"><span>🔍</span> View Races</div>
+                        </div>
                     </div>
 
                     <div id="careerRaceView" class="career-race-view">
-                        <div class="career-empty">Start your career to see Current Race and Next Race championship comparisons.</div>
+                        <div id="careerRaceViewContainer">
+                            <div class="career-empty">Start your career to see Current Race and Next Race championship comparisons.</div>
+                        </div>
                     </div>
 
                     <div class="career-section">
@@ -614,6 +635,31 @@
         <div id="adminInspectContent"></div>
         <div style="margin-top:20px; text-align:right;">
             <button type="button" class="career-modal-cancel" onclick="closeAdminInspectModal()">CLOSE</button>
+        </div>
+    </div>
+</div>
+
+<!-- Race Info & Telemetry Archive Modal -->
+<div id="raceInfoModal" class="career-modal race-info-modal-wrap" style="display:none;">
+    <div class="career-modal-backdrop" onclick="closeRaceInfoModal()"></div>
+    <div class="career-modal-card race-info-modal-card">
+        <div class="race-info-modal-header">
+            <div>
+                <div class="career-modal-kicker">2026 FIA WORLD CHAMPIONSHIP · RACE ARCHIVE &amp; TELEMETRY</div>
+                <h2 id="raceInfoModalTitle" style="font-family:'Orbitron', monospace; font-size:20px; letter-spacing:1px; margin:4px 0 6px;">RACE RESULTS &amp; DRIVER TELEMETRY</h2>
+                <div id="raceInfoModalSubtitle" style="font-size:12px; color:var(--text-muted);">Comparing both drivers, starting vs finishing positions, overtakes, contacts, and steward penalties.</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <select id="raceInfoTeamSelect" class="race-info-team-select" onchange="switchRaceInfoTeam(this.value)"></select>
+                <button type="button" class="race-info-close-btn" onclick="closeRaceInfoModal()">&times;</button>
+            </div>
+        </div>
+
+        <div id="raceInfoModalBody" class="race-info-modal-body"></div>
+
+        <div class="career-modal-actions" style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:10px; color:var(--text-muted); font-family:'Orbitron', monospace;">FIA OFFICIAL RACE CONTROL TELEMETRY · 2026 SEASON</div>
+            <button class="career-modal-cancel" onclick="closeRaceInfoModal()">CLOSE ARCHIVE</button>
         </div>
     </div>
 </div>

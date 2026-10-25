@@ -1258,6 +1258,14 @@ class RaceCoordinator:
         lap_history = []
         race_events = []
 
+        # Stewards, Penalties, Contacts & Overtakes Telemetry
+        driver_track_limits = {entry["driver_id"]: 0 for entry in grid}
+        driver_penalties = {entry["driver_id"]: 0.0 for entry in grid}
+        driver_penalty_reasons = {entry["driver_id"]: [] for entry in grid}
+        driver_contacts = {entry["driver_id"]: [] for entry in grid}
+        driver_overtakes_count = {entry["driver_id"]: 0 for entry in grid}
+        driver_times_passed_count = {entry["driver_id"]: 0 for entry in grid}
+
         fastest_lap_driver = None
         fastest_lap_time = None
         fastest_lap_number = None
@@ -1297,6 +1305,11 @@ class RaceCoordinator:
                     grid
                 )
             )
+
+            previous_gaps_ahead = {
+                entry["driver_id"]: entry.get("gap_to_ahead", 99.0)
+                for entry in grid
+            }
 
             lap_times = {}
             lap_snapshot = []
@@ -1427,6 +1440,25 @@ class RaceCoordinator:
                         lap_weather
                     )
                 )
+
+                # -------------------------------------------------
+                # DRS & Slipstream dynamic benefit.
+                # -------------------------------------------------
+                gap_ahead = previous_gaps_ahead.get(driver_id, 99.0)
+                if lap_number >= 2 and lap_weather == "Dry" and 0.0 < gap_ahead <= 1.0:
+                    drs_gain = random.uniform(0.25, 0.52)
+                    lap_time -= drs_gain
+
+                # -------------------------------------------------
+                # Leader traffic / dirty air when lapping backmarkers.
+                # -------------------------------------------------
+                if len(previous_order) > 0 and previous_order[0] == driver_id:
+                    leader_gap = previous_gaps.get(previous_order[1], 0.0) if len(previous_order) > 1 else 0.0
+                    if leader_gap > 2.5 and (14 <= lap_number <= 22 or 36 <= lap_number <= 46):
+                        traffic_loss = random.uniform(0.30, 0.85)
+                        lap_time += traffic_loss
+                    elif leader_gap <= 0.8:
+                        lap_time += random.uniform(0.12, 0.28)
 
                 # -------------------------------------------------
                 # Driver mistake.
@@ -1581,6 +1613,131 @@ class RaceCoordinator:
                         driver_id
                     ]
                 )
+
+            # =================================================
+            # TRACK LIMITS CHECKS
+            # =================================================
+            for entry in grid:
+                d_id = entry["driver_id"]
+                if random.random() < 0.025:
+                    driver_track_limits[d_id] += 1
+                    t_cnt = driver_track_limits[d_id]
+                    t_turn = random.choice([4, 9, 11, 13, 19])
+                    if t_cnt == 1:
+                        race_events.append({
+                            "type": "track_limits",
+                            "lap": lap_number,
+                            "driver": entry["driver"],
+                            "team": entry["team"],
+                            "warning": f"Track Limits Warning 1/3 (Turn {t_turn})"
+                        })
+                    elif t_cnt == 2:
+                        race_events.append({
+                            "type": "track_limits",
+                            "lap": lap_number,
+                            "driver": entry["driver"],
+                            "team": entry["team"],
+                            "warning": f"Track Limits Warning 2/3 - Black & White Flag (Turn {t_turn})"
+                        })
+                    elif t_cnt == 3:
+                        driver_penalties[d_id] += 5.0
+                        driver_penalty_reasons[d_id].append("5s Time Penalty - Track Limits (3rd Breach)")
+                        race_events.append({
+                            "type": "penalty",
+                            "lap": lap_number,
+                            "driver": entry["driver"],
+                            "team": entry["team"],
+                            "penalty_type": "5-Second Time Penalty",
+                            "penalty_seconds": 5.0,
+                            "reason": f"Track limits violations (3rd breach at Turn {t_turn})"
+                        })
+
+            # =================================================
+            # DYNAMIC ON-TRACK BATTLES & LEAD CHANGES
+            # =================================================
+            current_order_entries = sorted(grid, key=lambda e: e.get("race_time", 0.0))
+            for i in range(1, len(current_order_entries)):
+                trailing_car = current_order_entries[i]
+                car_ahead = current_order_entries[i - 1]
+                t_id = trailing_car["driver_id"]
+                a_id = car_ahead["driver_id"]
+
+                gap_between = trailing_car.get("race_time", 0.0) - car_ahead.get("race_time", 0.0)
+                if 0.0 < gap_between <= 0.85:
+                    t_lap = lap_times.get(t_id, 99.0)
+                    a_lap = lap_times.get(a_id, 99.0)
+                    t_stint = self._get_current_stint(race_states[t_id], lap_number)
+                    a_stint = self._get_current_stint(race_states[a_id], lap_number)
+                    t_tyre_age = self._get_tyre_age(t_stint, lap_number)
+                    a_tyre_age = self._get_tyre_age(a_stint, lap_number)
+
+                    pace_delta = a_lap - t_lap
+                    tyre_delta = a_tyre_age - t_tyre_age
+
+                    pass_prob = 0.0
+                    if pace_delta > 0.06:
+                        pass_prob += 0.35 + min(0.35, pace_delta * 0.45)
+                    if tyre_delta >= 4:
+                        pass_prob += 0.25
+                    if gap_between <= 0.35:
+                        pass_prob += 0.15
+
+                    if pass_prob > 0.30 and random.random() < pass_prob:
+                        pass_delta = random.uniform(0.18, 0.40)
+                        trailing_car["race_time"] = car_ahead["race_time"] - pass_delta
+                        car_ahead["race_time"] += random.uniform(0.12, 0.22)
+
+                        driver_overtakes_count[t_id] += 1
+                        driver_times_passed_count[a_id] += 1
+
+                        is_lead_change = (i == 1)
+                        race_events.append({
+                            "type": "overtake",
+                            "lap": lap_number,
+                            "driver": trailing_car["driver"],
+                            "team": trailing_car["team"],
+                            "overtaken_driver": car_ahead["driver"],
+                            "from_position": i + 1,
+                            "to_position": i,
+                            "is_lead_change": is_lead_change,
+                            "gap_before": round(gap_between, 3),
+                            "pace_advantage": round(pace_delta, 3)
+                        })
+
+                        # Close wheel-to-wheel contact & steward investigation check
+                        if gap_between <= 0.40 and random.random() < 0.07:
+                            turn_num = random.choice([1, 2, 4, 10, 14])
+                            driver_contacts[t_id].append(f"Wheel-to-wheel contact with {car_ahead['driver']} (Turn {turn_num}, Lap {lap_number})")
+                            driver_contacts[a_id].append(f"Sidepod impact from {trailing_car['driver']} (Turn {turn_num}, Lap {lap_number})")
+                            race_events.append({
+                                "type": "contact",
+                                "lap": lap_number,
+                                "driver": trailing_car["driver"],
+                                "team": trailing_car["team"],
+                                "other_driver": car_ahead["driver"],
+                                "other_team": car_ahead["team"],
+                                "details": f"Side-by-side wheel banging at Turn {turn_num}"
+                            })
+                            race_events.append({
+                                "type": "investigation",
+                                "lap": lap_number,
+                                "driver": trailing_car["driver"],
+                                "team": trailing_car["team"],
+                                "other_driver": car_ahead["driver"],
+                                "reason": f"Causing a collision with {car_ahead['driver']} at Turn {turn_num}"
+                            })
+                            if random.random() < 0.50:
+                                driver_penalties[t_id] += 5.0
+                                driver_penalty_reasons[t_id].append(f"5s Time Penalty - Causing collision with {car_ahead['driver']}")
+                                race_events.append({
+                                    "type": "penalty",
+                                    "lap": min(lap_number + 1, laps),
+                                    "driver": trailing_car["driver"],
+                                    "team": trailing_car["team"],
+                                    "penalty_type": "5-Second Time Penalty",
+                                    "penalty_seconds": 5.0,
+                                    "reason": f"Causing a collision with {car_ahead['driver']} at Turn {turn_num}"
+                                })
 
             # =================================================
             # ORDER
@@ -1836,8 +1993,19 @@ class RaceCoordinator:
             })
 
         # =====================================================
-        # FINAL CLASSIFICATION
+        # FINAL CLASSIFICATION (WITH PENALTIES APPLIED)
         # =====================================================
+
+        for entry in grid:
+            d_id = entry["driver_id"]
+            p_time = driver_penalties.get(d_id, 0.0)
+            entry["penalty_time"] = round(p_time, 1)
+            entry["race_time"] = entry.get("race_time", 0.0) + p_time
+            entry["penalties_list"] = driver_penalty_reasons.get(d_id, [])
+            entry["contacts_list"] = driver_contacts.get(d_id, [])
+            entry["overtakes_made"] = driver_overtakes_count.get(d_id, 0)
+            entry["positions_lost"] = driver_times_passed_count.get(d_id, 0)
+            entry["track_limits_count"] = driver_track_limits.get(d_id, 0)
 
         grid.sort(
             key=lambda entry:
@@ -1865,6 +2033,9 @@ class RaceCoordinator:
             state = race_states[
                 driver_id
             ]
+
+            grid_pos = state["grid_position"]
+            pos_delta = grid_pos - position
 
             classification.append({
 
@@ -1928,9 +2099,46 @@ class RaceCoordinator:
                     ),
 
                 "grid_position":
-                    state[
-                        "grid_position"
-                    ],
+                    grid_pos,
+
+                "positions_gained":
+                    pos_delta,
+
+                "overtakes_made":
+                    entry.get(
+                        "overtakes_made",
+                        0
+                    ),
+
+                "positions_lost":
+                    entry.get(
+                        "positions_lost",
+                        0
+                    ),
+
+                "penalty_time":
+                    entry.get(
+                        "penalty_time",
+                        0.0
+                    ),
+
+                "penalties":
+                    entry.get(
+                        "penalties_list",
+                        []
+                    ),
+
+                "contacts":
+                    entry.get(
+                        "contacts_list",
+                        []
+                    ),
+
+                "track_limits":
+                    entry.get(
+                        "track_limits_count",
+                        0
+                    ),
 
                 "strategy":
                     state[
@@ -2076,6 +2284,46 @@ class RaceCoordinator:
             "driver_mistake"
         )
 
+        penalty_count = sum(
+            1
+            for event in race_events
+            if event.get(
+                "type"
+            )
+            ==
+            "penalty"
+        )
+
+        contact_count = sum(
+            1
+            for event in race_events
+            if event.get(
+                "type"
+            )
+            ==
+            "contact"
+        )
+
+        investigation_count = sum(
+            1
+            for event in race_events
+            if event.get(
+                "type"
+            )
+            ==
+            "investigation"
+        )
+
+        track_limits_count = sum(
+            1
+            for event in race_events
+            if event.get(
+                "type"
+            )
+            ==
+            "track_limits"
+        )
+
         # =====================================================
         # RESULT
         # =====================================================
@@ -2198,7 +2446,19 @@ class RaceCoordinator:
                     safety_car_count,
 
                 "driver_mistakes":
-                    mistake_count
+                    mistake_count,
+
+                "penalties":
+                    penalty_count,
+
+                "contacts":
+                    contact_count,
+
+                "investigations":
+                    investigation_count,
+
+                "track_limits":
+                    track_limits_count
             },
 
             "calibration": {

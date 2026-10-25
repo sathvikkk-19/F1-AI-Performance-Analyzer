@@ -117,6 +117,73 @@
     color: var(--gold);
 }
 
+/* ---------------------------------------------------------
+   FIA STEWARDS & PENALTY NOTIFICATIONS
+--------------------------------------------------------- */
+.pitwall-steward-pill {
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.25s ease;
+}
+
+.pitwall-steward-warning {
+    background: rgba(245, 158, 11, 0.25);
+    border: 1px solid #f59e0b;
+    color: #fbbf24;
+    animation: stewardPulse 1.2s infinite alternate;
+}
+
+.pitwall-steward-penalty {
+    background: rgba(239, 68, 68, 0.35);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+    animation: stewardPenaltyFlash 0.8s infinite alternate;
+}
+
+.pitwall-steward-investigation {
+    background: rgba(56, 189, 248, 0.25);
+    border: 1px solid #38bdf8;
+    color: #7dd3fc;
+    animation: stewardPulse 1.5s infinite alternate;
+}
+
+.pitwall-steward-green {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid #10b981;
+    color: #34d399;
+}
+
+@keyframes stewardPulse {
+    from { box-shadow: 0 0 4px rgba(245, 158, 11, 0.3); }
+    to { box-shadow: 0 0 14px rgba(245, 158, 11, 0.7); }
+}
+
+@keyframes stewardPenaltyFlash {
+    from { box-shadow: 0 0 6px rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.25); }
+    to { box-shadow: 0 0 20px rgba(239, 68, 68, 0.9); background: rgba(239, 68, 68, 0.45); }
+}
+
+.tower-driver-pen {
+    margin-left: 6px;
+    font-size: 9px;
+    padding: 1px 5px;
+    background: rgba(239, 68, 68, 0.3);
+    border: 1px solid #ef4444;
+    border-radius: 3px;
+    color: #fca5a5;
+    font-weight: 700;
+    font-family: 'Orbitron', monospace;
+    display: inline-block;
+}
+
 @keyframes pulseWarning {
     from { box-shadow: 0 0 5px rgba(245, 158, 11, 0.3); }
     to { box-shadow: 0 0 16px rgba(245, 158, 11, 0.8); }
@@ -445,11 +512,65 @@
 .fill-tyre-medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
 .fill-tyre-critical { background: linear-gradient(90deg, #ef4444, #f87171); animation: blinkCritical 0.8s infinite; }
 
-.fill-ers { background: linear-gradient(90deg, #06b6d4, #3b82f6); }
+.fill-ers {
+    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    transition: width 0.25s linear, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fill-ers.ers-deploying {
+    background: linear-gradient(90deg, #38bdf8, #2563eb);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.65);
+}
+
+.fill-ers.ers-deploying.ers-attack {
+    background: linear-gradient(90deg, #ef4444, #f97316);
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.8);
+}
+
+.fill-ers.ers-harvesting {
+    background: linear-gradient(90deg, #10b981, #059669);
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.85);
+    animation: pulseHarvest 0.5s infinite alternate;
+}
+
+.fill-ers.ers-critical {
+    background: linear-gradient(90deg, #dc2626, #991b1b);
+    animation: blinkCritical 0.4s infinite;
+}
+
+@keyframes pulseHarvest {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(1.4); }
+}
 
 @keyframes blinkCritical {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    50% { opacity: 0.35; }
+}
+
+.tower-gap.shrinking {
+    color: #34d399 !important;
+    font-weight: 700;
+}
+
+.tower-gap.widening {
+    color: #f87171 !important;
+}
+
+.pitwall-tower-row.lead-change-highlight {
+    animation: flashLeadChange 1.4s ease-out;
+}
+
+@keyframes flashLeadChange {
+    0% {
+        background: rgba(255, 215, 0, 0.45);
+        border: 1px solid var(--gold);
+        transform: scale(1.02);
+    }
+    100% {
+        background: transparent;
+        transform: scale(1);
+    }
 }
 
 /* Engine / Power Unit Strategy Toggles */

@@ -70,8 +70,8 @@ class StrategyEngine:
     # =========================================================
 
     TYRE_BASE_LIFE = {
-        "soft": 18,
-        "medium": 28,
+        "soft": 16,
+        "medium": 26,
         "hard": 38,
         "intermediate": 24,
         "wet": 20

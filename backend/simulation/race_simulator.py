@@ -66,9 +66,9 @@ class RaceSimulator:
 
     TYRE_LIFE = {
 
-        "Soft": 18,
+        "Soft": 16,
 
-        "Medium": 28,
+        "Medium": 26,
 
         "Hard": 38,
 
@@ -78,20 +78,20 @@ class RaceSimulator:
     }
 
     # =====================================================
-    # TYRE DEGRADATION
+    # TYRE DEGRADATION (Pirelli Realistic Time Loss / Lap)
     # =====================================================
 
     TYRE_DEGRADATION = {
 
-        "Soft": 0.085,
+        "Soft": 0.165,
 
-        "Medium": 0.050,
+        "Medium": 0.088,
 
-        "Hard": 0.032,
+        "Hard": 0.045,
 
-        "Intermediate": 0.040,
+        "Intermediate": 0.075,
 
-        "Full Wet": 0.035
+        "Full Wet": 0.055
     }
 
     # =====================================================
@@ -1463,17 +1463,38 @@ class RaceSimulator:
             )
         )
 
+        effective_age = max(
+            tyre_age - 1,
+            0
+        )
+
+        nominal_life = self.TYRE_LIFE.get(
+            compound,
+            26
+        )
+
+        # Baseline linear degradation
         degradation = (
-
-            max(
-                tyre_age - 1,
-                0
-            )
-
+            effective_age
             *
-
             degradation_rate
         )
+
+        # Non-linear thermal cliff: when tyre passes 70% of life, degradation ramps up
+        cliff_start = int(nominal_life * 0.70)
+        if effective_age > cliff_start:
+            cliff_excess = effective_age - cliff_start
+            degradation += (cliff_excess ** 1.6) * (degradation_rate * 0.75)
+
+        # Severe thermal degradation when wet tyres are run on a dry track
+        if weather == "Dry":
+            if compound == "Intermediate":
+                degradation += effective_age * 0.22
+            elif compound == "Full Wet":
+                degradation += effective_age * 0.45
+        elif weather in {"Mixed", "Wet"}:
+            if compound in {"Soft", "Medium", "Hard"}:
+                degradation += effective_age * 0.18
 
         # =================================================
         # TYRE STRESS
