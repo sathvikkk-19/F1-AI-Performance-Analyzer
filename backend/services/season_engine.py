@@ -4,6 +4,7 @@ import random
 from backend.extensions import db
 from backend.models import Circuit, Team
 from backend.simulation.race_coordinator import race_coordinator
+from backend.simulation.qualifying import qualifying_engine
 
 
 class SeasonEngine:
@@ -105,6 +106,336 @@ class SeasonEngine:
         "Qatar Grand Prix": "Dry",
         "Abu Dhabi Grand Prix": "Dry",
     }
+
+    # Authentic F1 Circuit Meteorological Data & Climate Modeling
+    CIRCUIT_METEOROLOGY = {
+        "Australian Grand Prix": {
+            "rain_probability": 20,
+            "track_temp_range": (28, 36),
+            "air_temp_range": (21, 26),
+            "humidity_range": (45, 65),
+            "wind": "14 km/h SW",
+            "climate_summary": "Albert Park coastal autumn. Usually dry with occasional sea breezes and light cloud.",
+        },
+        "Chinese Grand Prix": {
+            "rain_probability": 35,
+            "track_temp_range": (20, 28),
+            "air_temp_range": (17, 23),
+            "humidity_range": (60, 80),
+            "wind": "12 km/h NE",
+            "climate_summary": "Jiading humid subtropical spring. High chance of overcast skies and damp morning moisture.",
+        },
+        "Japanese Grand Prix": {
+            "rain_probability": 45,
+            "track_temp_range": (20, 26),
+            "air_temp_range": (16, 22),
+            "humidity_range": (65, 85),
+            "wind": "18 km/h E",
+            "climate_summary": "Mie Prefecture maritime climate. Frequent changeable conditions with sudden heavy showers.",
+        },
+        "Bahrain Grand Prix": {
+            "rain_probability": 0,
+            "track_temp_range": (28, 34),
+            "air_temp_range": (24, 29),
+            "humidity_range": (35, 50),
+            "wind": "10 km/h NW",
+            "climate_summary": "Sakhir desert night race. Guaranteed dry with clear skies and falling night track temperatures.",
+        },
+        "Saudi Arabian Grand Prix": {
+            "rain_probability": 0,
+            "track_temp_range": (30, 36),
+            "air_temp_range": (27, 32),
+            "humidity_range": (50, 70),
+            "wind": "12 km/h W",
+            "climate_summary": "Red Sea coastal desert. Guaranteed dry with warm sea breeze and high track grip.",
+        },
+        "Miami Grand Prix": {
+            "rain_probability": 30,
+            "track_temp_range": (36, 46),
+            "air_temp_range": (28, 33),
+            "humidity_range": (65, 85),
+            "wind": "15 km/h SE",
+            "climate_summary": "South Florida subtropical heat. Blistering tarmac with risk of localized tropical cloudbursts.",
+        },
+        "Emilia-Romagna Grand Prix": {
+            "rain_probability": 25,
+            "track_temp_range": (22, 30),
+            "air_temp_range": (18, 24),
+            "humidity_range": (50, 70),
+            "wind": "11 km/h NE",
+            "climate_summary": "Po Valley temperate spring. Greasy asphalt tendency with risk of early drizzle and drying lines.",
+        },
+        "Monaco Grand Prix": {
+            "rain_probability": 30,
+            "track_temp_range": (26, 35),
+            "air_temp_range": (22, 27),
+            "humidity_range": (55, 75),
+            "wind": "9 km/h S",
+            "climate_summary": "Côte d'Azur microclimate. High humidity with potential for sudden maritime showers turning streets treacherous.",
+        },
+        "Spanish Grand Prix": {
+            "rain_probability": 10,
+            "track_temp_range": (34, 44),
+            "air_temp_range": (26, 31),
+            "humidity_range": (40, 55),
+            "wind": "12 km/h S",
+            "climate_summary": "Catalan summer sunshine. Scorching track temperatures with severe thermal tyre degradation.",
+        },
+        "Canadian Grand Prix": {
+            "rain_probability": 50,
+            "track_temp_range": (20, 29),
+            "air_temp_range": (17, 24),
+            "humidity_range": (55, 75),
+            "wind": "16 km/h W",
+            "climate_summary": "Île Notre-Dame river microclimate. Highly changeable weather with rapid downpour-to-dry transitions.",
+        },
+        "Austrian Grand Prix": {
+            "rain_probability": 35,
+            "track_temp_range": (24, 34),
+            "air_temp_range": (19, 26),
+            "humidity_range": (45, 65),
+            "wind": "13 km/h N",
+            "climate_summary": "Styrian Alps valley. Mountain microclimate prone to sudden afternoon convective storms.",
+        },
+        "British Grand Prix": {
+            "rain_probability": 55,
+            "track_temp_range": (20, 29),
+            "air_temp_range": (17, 23),
+            "humidity_range": (60, 80),
+            "wind": "22 km/h WSW",
+            "climate_summary": "Northamptonshire exposed winds. Quintessential changeable British summer with high rain probability.",
+        },
+        "Belgian Grand Prix": {
+            "rain_probability": 60,
+            "track_temp_range": (18, 26),
+            "air_temp_range": (15, 21),
+            "humidity_range": (65, 88),
+            "wind": "15 km/h NW",
+            "climate_summary": "Ardennes forest microclimate. World-famous changeable conditions; localized rain common across the 7km lap.",
+        },
+        "Hungarian Grand Prix": {
+            "rain_probability": 15,
+            "track_temp_range": (36, 48),
+            "air_temp_range": (28, 34),
+            "humidity_range": (35, 50),
+            "wind": "10 km/h E",
+            "climate_summary": "Mogyoród natural amphitheater. Blistering continental heat bowl with intense track surface temperatures.",
+        },
+        "Dutch Grand Prix": {
+            "rain_probability": 45,
+            "track_temp_range": (19, 26),
+            "air_temp_range": (16, 22),
+            "humidity_range": (65, 85),
+            "wind": "28 km/h NW Coastal Gale",
+            "climate_summary": "North Sea sand dunes. Heavy coastal gusts with rapid squalls and damp greasy asphalt.",
+        },
+        "Italian Grand Prix": {
+            "rain_probability": 15,
+            "track_temp_range": (30, 40),
+            "air_temp_range": (24, 29),
+            "humidity_range": (45, 60),
+            "wind": "8 km/h S",
+            "climate_summary": "Royal Park of Monza late summer. Hot and fast; optimum conditions for low-downforce slipstreaming.",
+        },
+        "Azerbaijan Grand Prix": {
+            "rain_probability": 5,
+            "track_temp_range": (28, 38),
+            "air_temp_range": (23, 28),
+            "humidity_range": (45, 60),
+            "wind": "26 km/h Caspian Sea Gusts",
+            "climate_summary": "Baku City of Winds. Dry, gusty Caspian winds with tricky braking stability in street canyons.",
+        },
+        "Singapore Grand Prix": {
+            "rain_probability": 40,
+            "track_temp_range": (29, 34),
+            "air_temp_range": (28, 31),
+            "humidity_range": (78, 92),
+            "wind": "8 km/h NE",
+            "climate_summary": "Equatorial rainforest climate. Oppressive 85%+ humidity with threat of tropical evening deluges.",
+        },
+        "United States Grand Prix": {
+            "rain_probability": 15,
+            "track_temp_range": (32, 42),
+            "air_temp_range": (25, 30),
+            "humidity_range": (40, 60),
+            "wind": "14 km/h S",
+            "climate_summary": "Austin Texas hill country. Warm and sunny with high tyre stress across the Esses.",
+        },
+        "Mexico City Grand Prix": {
+            "rain_probability": 20,
+            "track_temp_range": (26, 36),
+            "air_temp_range": (20, 25),
+            "humidity_range": (40, 55),
+            "wind": "11 km/h E",
+            "climate_summary": "High altitude plateau (2,250m). Low air density with cool mountain breeze and late storm threat.",
+        },
+        "São Paulo Grand Prix": {
+            "rain_probability": 55,
+            "track_temp_range": (22, 33),
+            "air_temp_range": (19, 26),
+            "humidity_range": (65, 85),
+            "wind": "16 km/h SE",
+            "climate_summary": "Interlagos bowl microclimate. Renowned for sudden tropical downpours and dramatic drying track races.",
+        },
+        "Las Vegas Grand Prix": {
+            "rain_probability": 0,
+            "track_temp_range": (12, 18),
+            "air_temp_range": (10, 15),
+            "humidity_range": (25, 40),
+            "wind": "10 km/h SW",
+            "climate_summary": "Mojave desert midnight chill. Extreme low temperatures with severe tyre warmup challenge. 0% rain.",
+        },
+        "Qatar Grand Prix": {
+            "rain_probability": 0,
+            "track_temp_range": (32, 39),
+            "air_temp_range": (28, 34),
+            "humidity_range": (50, 70),
+            "wind": "16 km/h Desert Gusts",
+            "climate_summary": "Lusail desert night race. Intense ambient heat and humidity with 0% rain probability.",
+        },
+        "Abu Dhabi Grand Prix": {
+            "rain_probability": 0,
+            "track_temp_range": (27, 34),
+            "air_temp_range": (25, 30),
+            "humidity_range": (45, 60),
+            "wind": "11 km/h NW",
+            "climate_summary": "Yas Marina twilight. Falling track temperatures under twilight lights with 0% rain probability.",
+        },
+    }
+
+    def generate_circuit_weather(self, circuit: Any) -> Dict[str, Any]:
+        """
+        Auto-determine realistic Grand Prix weather based on circuit geographic
+        location, historical climate tendencies, and stochastic meteorological modeling.
+        """
+        circuit_name = self._circuit_name(circuit)
+        profile = self.CIRCUIT_METEOROLOGY.get(
+            circuit_name,
+            {
+                "rain_probability": 25,
+                "track_temp_range": (25, 35),
+                "air_temp_range": (20, 26),
+                "humidity_range": (50, 70),
+                "wind": "12 km/h",
+                "climate_summary": "Standard Grand Prix conditions.",
+            }
+        )
+
+        rain_prob = profile.get("rain_probability", 20)
+        roll = random.uniform(0, 100)
+
+        if rain_prob > 0 and roll < (rain_prob * 0.40):
+            condition = "Wet"
+            track_moisture = random.randint(75, 92)
+            is_drying = False
+            desc = "Active rainfall over circuit. Heavy spray and standing water."
+        elif rain_prob > 0 and roll < rain_prob:
+            condition = "Damp"
+            track_moisture = random.randint(40, 56)
+            is_drying = True
+            desc = "Pre-race drizzle has stopped. Greasy surface with visible drying line."
+        else:
+            condition = "Dry"
+            track_moisture = 0
+            is_drying = False
+            desc = "Dry asphalt with optimum grip level."
+
+        t_min, t_max = profile.get("track_temp_range", (25, 35))
+        a_min, a_max = profile.get("air_temp_range", (20, 26))
+        h_min, h_max = profile.get("humidity_range", (50, 70))
+
+        track_temp = random.randint(t_min, t_max)
+        air_temp = random.randint(a_min, a_max)
+        humidity = random.randint(h_min, h_max)
+
+        if condition == "Wet":
+            track_temp = max(14, track_temp - 8)
+            humidity = min(98, humidity + 15)
+        elif condition == "Damp":
+            track_temp = max(16, track_temp - 4)
+            humidity = min(92, humidity + 8)
+
+        return {
+            "condition": condition,
+            "track_temp_c": track_temp,
+            "air_temp_c": air_temp,
+            "humidity_pct": humidity,
+            "rain_probability_pct": rain_prob,
+            "wind": profile.get("wind", "12 km/h"),
+            "track_moisture_pct": track_moisture,
+            "is_drying": is_drying,
+            "description": desc,
+            "climate_summary": profile.get("climate_summary", ""),
+            "circuit": circuit_name,
+        }
+
+    def qualify_round(
+        self,
+        round_number: int,
+        circuits: Optional[List[Any]] = None,
+        teams: Optional[List[Any]] = None,
+        season_year: int = 2026,
+        weather_condition: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Simulate an authentic F1 Qualifying session (Q1, Q2, Q3) for an upcoming round
+        prior to the race, establishing the starting grid and pole position.
+        """
+        circuits = circuits or self._load_circuits()
+        teams = teams or self._load_teams()
+
+        if round_number < 1 or round_number > len(circuits):
+            round_number = 1
+
+        circuit = circuits[round_number - 1]
+        circuit_name = self._circuit_name(circuit)
+        weather = weather_condition or self._default_weather(circuit)
+
+        entries = self.race_coordinator.race_grid.create_starting_grid(teams)
+        qualifying = qualifying_engine.qualify(entries, circuit, weather=weather)
+
+        profile = self.race_coordinator._get_circuit_profile(circuit)
+        calibrated_grid = self.race_coordinator._apply_calibrated_qualifying(
+            qualifying.get("starting_grid", []),
+            profile,
+            weather
+        )
+
+        calibrated_grid.sort(key=lambda x: x.get("qualifying_lap_time", 999))
+
+        pole_entry = calibrated_grid[0]
+        pole_time = float(pole_entry.get("qualifying_lap_time", 90.0))
+
+        def _fmt_time(sec):
+            m = int(sec // 60)
+            s = sec % 60
+            return f"{m}:{s:06.3f}"
+
+        formatted_grid = []
+        for pos, entry in enumerate(calibrated_grid, start=1):
+            row = dict(entry)
+            lap_sec = float(row.get("qualifying_lap_time", 90.0))
+            gap = round(lap_sec - pole_time, 3)
+            row["position"] = pos
+            row["grid_position"] = pos
+            row["formatted_time"] = _fmt_time(lap_sec)
+            row["gap_to_pole"] = "POLE" if pos == 1 else f"+{gap:.3f}s"
+            formatted_grid.append(row)
+
+        return {
+            "round": round_number,
+            "circuit": circuit_name,
+            "country": self._circuit_country(circuit),
+            "weather": weather,
+            "pole_sitter": {
+                "driver": pole_entry.get("driver"),
+                "team": pole_entry.get("team"),
+                "lap_time": pole_time,
+                "formatted_time": _fmt_time(pole_time),
+            },
+            "grid": formatted_grid,
+            "starting_grid": calibrated_grid,
+        }
 
     def __init__(self, coordinator=None):
         self.race_coordinator = coordinator or race_coordinator

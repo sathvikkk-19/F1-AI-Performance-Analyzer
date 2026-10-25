@@ -120,18 +120,52 @@ class PitwallController {
 
         // Identify upcoming race info
         const nextRace = (careerData && (careerData.next_race || careerData.current_race)) || {};
-        const baseWeather = nextRace.weather || "Dry";
+        this.qualifyingData = (careerData && careerData.upcoming_qualifying) || nextRace.qualifying || null;
+        this.weatherReport = (careerData && careerData.upcoming_weather) || nextRace.weather_report || null;
 
-        if (baseWeather === "Mixed" || baseWeather === "Wet") {
-            this.selectedTrackCondition = "Damp";
-            this.selectedStartingCompound = "Intermediate";
+        // Auto-determine track condition from Official FIA Meteorological Report (no manual toggle!)
+        if (this.weatherReport && this.weatherReport.condition) {
+            this.selectedTrackCondition = this.weatherReport.condition;
+            this.trackMoisture = Number(this.weatherReport.track_moisture_pct || (this.selectedTrackCondition === 'Wet' ? 85 : (this.selectedTrackCondition === 'Damp' ? 48 : 0)));
+            this.isDryingTrack = Boolean(this.weatherReport.is_drying);
         } else {
-            this.selectedTrackCondition = "Dry";
-            this.selectedStartingCompound = "Medium";
+            const baseWeather = nextRace.weather || "Dry";
+            if (baseWeather === "Mixed" || baseWeather === "Wet") {
+                this.selectedTrackCondition = "Damp";
+                this.trackMoisture = 48;
+                this.isDryingTrack = true;
+            } else {
+                this.selectedTrackCondition = "Dry";
+                this.trackMoisture = 0;
+                this.isDryingTrack = false;
+            }
         }
-        this.pitNextCompound = "Hard";
 
-        // Show modal with the Pre-Race Starting Tyre & Weather Strategy screen
+        // Establish player's starting grid position and pole sitter from qualifying session
+        if (this.qualifyingData && this.qualifyingData.player_result) {
+            this.playerPos = Number(this.qualifyingData.player_result.position) || 1;
+            this.playerQualTime = this.qualifyingData.player_result.formatted_time || "";
+            this.playerQualGap = this.qualifyingData.player_result.gap_to_pole || "";
+        } else {
+            this.playerPos = 1;
+            this.playerQualTime = "";
+            this.playerQualGap = "";
+        }
+        this.poleSitter = (this.qualifyingData && this.qualifyingData.pole_sitter) || null;
+
+        // Auto-select starting tyre logically based on auto-determined weather
+        if (this.selectedTrackCondition === "Wet") {
+            this.selectedStartingCompound = "Full Wet";
+            this.pitNextCompound = "Intermediate";
+        } else if (this.selectedTrackCondition === "Damp") {
+            this.selectedStartingCompound = "Intermediate";
+            this.pitNextCompound = "Medium";
+        } else {
+            this.selectedStartingCompound = "Medium";
+            this.pitNextCompound = "Hard";
+        }
+
+        // Show modal with the Pre-Race Starting Tyre Strategy screen
         modal.style.display = "block";
         this._renderPreRaceStrategyModal();
     }
@@ -212,6 +246,41 @@ class PitwallController {
 
         const activeCompound = compoundDetails[this.selectedStartingCompound] || compoundDetails["Medium"];
 
+        const qualGrid = (this.qualifyingData && this.qualifyingData.grid) || [];
+        const poleSitter = this.poleSitter || (qualGrid[0] ? { driver: qualGrid[0].driver, team: qualGrid[0].team, formatted_time: qualGrid[0].formatted_time } : null);
+        const playerPos = this.playerPos || 1;
+        const playerQualTime = this.playerQualTime || (qualGrid[playerPos - 1] ? qualGrid[playerPos - 1].formatted_time : "--:--.---");
+        const playerQualGap = this.playerQualGap || (qualGrid[playerPos - 1] ? qualGrid[playerPos - 1].gap_to_pole : (playerPos === 1 ? "POLE" : ""));
+
+        let posBadgeClass = "badge-pos-midfield";
+        let posKicker = `ROW ${Math.ceil(playerPos / 2)} · GRID SLOT P${playerPos}`;
+        if (playerPos === 1) {
+            posBadgeClass = "badge-pos-pole";
+            posKicker = "🏆 POLE POSITION · FRONT ROW";
+        } else if (playerPos === 2) {
+            posBadgeClass = "badge-pos-p2";
+            posKicker = "🥈 FRONT ROW · P2 START";
+        } else if (playerPos === 3) {
+            posBadgeClass = "badge-pos-p3";
+            posKicker = "🥉 ROW 2 · P3 START (CLEAN SIDE)";
+        } else if (playerPos === 4) {
+            posBadgeClass = "badge-pos-p4";
+            posKicker = "ROW 2 · P4 START";
+        } else if (playerPos <= 10) {
+            posBadgeClass = "badge-pos-points";
+            posKicker = `TOP 10 · ROW ${Math.ceil(playerPos / 2)} · P${playerPos}`;
+        }
+
+        // Weather Radar info
+        const wRep = this.weatherReport || {};
+        const trackTemp = wRep.track_temp_c !== undefined ? wRep.track_temp_c : (this.selectedTrackCondition === 'Dry' ? 34 : 22);
+        const airTemp = wRep.air_temp_c !== undefined ? wRep.air_temp_c : 23;
+        const humidity = wRep.humidity_pct !== undefined ? wRep.humidity_pct : (this.selectedTrackCondition === 'Wet' ? 85 : 52);
+        const rainRisk = wRep.rain_probability_pct !== undefined ? wRep.rain_probability_pct : 25;
+        const wind = wRep.wind || "14 km/h SW";
+        const climateDesc = wRep.climate_summary || "Circuit meteorological sensors active.";
+        const weatherDesc = wRep.description || (this.selectedTrackCondition === 'Wet' ? 'Active rainfall over asphalt. Heavy spray.' : (this.selectedTrackCondition === 'Damp' ? 'Pre-race drizzle stopped. Greasy surface with drying line.' : 'Optimal mechanical grip. Dry racing line.'));
+
         modal.innerHTML = `
             <div class="prerace-modal-wrap">
                 <div class="prerace-modal-card">
@@ -231,25 +300,98 @@ class PitwallController {
                         </div>
                     </div>
 
-                    <!-- Track & Weather Condition Bar -->
+                    <!-- 1. OFFICIAL STARTING GRID & QUALIFYING PERFORMANCE -->
+                    <div class="prerace-grid-section">
+                        <div class="prerace-section-label">
+                            <span>1. OFFICIAL STARTING GRID POSITION (QUALIFYING SESSION RESULT)</span>
+                            <span class="grid-official-badge">SATURDAY Q3 VERIFIED</span>
+                        </div>
+                        <div class="prerace-grid-card">
+                            <div class="prerace-grid-left">
+                                <div class="prerace-pos-pill ${posBadgeClass}">
+                                    <span class="pos-num">P${playerPos}</span>
+                                    <span class="pos-kicker">${posKicker}</span>
+                                </div>
+                                <div class="prerace-grid-driver-info">
+                                    <div class="prerace-grid-driver-name">${escapeHtml(this.driverName)} <span class="grid-you-tag">👤 YOU</span></div>
+                                    <div class="prerace-grid-driver-team">${escapeHtml(this.myTeam)} · Q3 Lap: <strong>${escapeHtml(playerQualTime)}</strong> (${escapeHtml(playerQualGap)})</div>
+                                </div>
+                            </div>
+                            <div class="prerace-pole-summary">
+                                <div class="pole-title">POLE SITTER</div>
+                                ${poleSitter ? `
+                                    <div class="pole-driver">${escapeHtml(poleSitter.driver)}</div>
+                                    <div class="pole-meta">${escapeHtml(poleSitter.team)} · ${escapeHtml(poleSitter.formatted_time || "")}</div>
+                                ` : `
+                                    <div class="pole-driver">P1 Established</div>
+                                `}
+                            </div>
+                        </div>
+
+                        <!-- Top Starting Grid Visual Rack -->
+                        ${qualGrid.length > 0 ? `
+                            <div class="prerace-grid-rack">
+                                <div class="grid-rack-label">STARTING GRID LINEUP (FRONT ROWS):</div>
+                                <div class="grid-slots-row">
+                                    ${qualGrid.slice(0, 8).map(g => {
+                                        const isMe = Number(g.position) === Number(playerPos) || String(g.driver).toLowerCase() === String(this.driverName).toLowerCase();
+                                        return `
+                                            <div class="grid-slot-card ${isMe ? 'slot-is-me' : ''}">
+                                                <div class="slot-pos">P${g.position}</div>
+                                                <div class="slot-driver" title="${escapeHtml(g.driver)}">${escapeHtml(g.driver.split(' ').pop())}</div>
+                                                <div class="slot-gap">${g.position === 1 ? 'POLE' : escapeHtml(g.gap_to_pole || '')}</div>
+                                                ${isMe ? `<div class="slot-you-pill">YOU</div>` : ''}
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- 2. OFFICIAL FIA METEOROLOGICAL RADAR & TRACK CONDITIONS (AUTO-DETERMINED) -->
                     <div class="prerace-condition-section">
                         <div class="prerace-section-label">
-                            <span>1. STARTING TRACK &amp; WEATHER CONDITIONS</span>
-                            <span style="color:var(--gold); font-size:10px;">TACTICAL METEOROLOGY OVERRIDE</span>
+                            <span>2. OFFICIAL FIA METEOROLOGICAL RADAR &amp; TRACK CONDITIONS</span>
+                            <span class="radar-live-badge">📡 AUTO-DETERMINED VIA FIA CIRCUIT RADAR</span>
                         </div>
-                        <div class="prerace-condition-toggles">
-                            <button type="button" class="prerace-cond-btn ${this.selectedTrackCondition === 'Dry' ? 'active' : ''}" onclick="window.pitwall.setStartingTrackCondition('Dry')">
-                                <div class="prerace-cond-title">☀️ DRY ASPHALT</div>
-                                <div class="prerace-cond-desc">34°C Track Temp · 0% Moisture · Maximum mechanical grip for slicks</div>
-                            </button>
-                            <button type="button" class="prerace-cond-btn cond-damp ${this.selectedTrackCondition === 'Damp' ? 'active' : ''}" onclick="window.pitwall.setStartingTrackCondition('Damp')">
-                                <div class="prerace-cond-title">🌦️ DAMP / DRYING TRACK</div>
-                                <div class="prerace-cond-desc">45% Moisture · Pre-race drizzle stopped · Greasy surface with drying line</div>
-                            </button>
-                            <button type="button" class="prerace-cond-btn ${this.selectedTrackCondition === 'Wet' ? 'active' : ''}" onclick="window.pitwall.setStartingTrackCondition('Wet')">
-                                <div class="prerace-cond-title">🌧️ ACTIVE RAINFALL</div>
-                                <div class="prerace-cond-desc">85% Moisture · Rain falling · Standing water and heavy spray</div>
-                            </button>
+                        <div class="prerace-radar-report-card condition-${this.selectedTrackCondition.toLowerCase()}">
+                            <div class="radar-card-header">
+                                <div class="radar-status-pill">
+                                    ${this.selectedTrackCondition === 'Dry' ? '☀️ DRY ASPHALT · OPTIMAL SLICK GRIP' : (this.selectedTrackCondition === 'Damp' ? '🌦️ DAMP / DRYING TRACK · GREASY SURFACE' : '🌧️ ACTIVE RAINFALL · STANDING WATER')}
+                                </div>
+                                <div class="radar-moisture-badge">
+                                    SURFACE MOISTURE: <strong>${this.trackMoisture}%</strong>
+                                </div>
+                            </div>
+                            <div class="radar-desc-text">
+                                ${escapeHtml(weatherDesc)} · ${escapeHtml(climateDesc)}
+                            </div>
+                            <div class="radar-telemetry-row">
+                                <div class="radar-tele-pill">
+                                    <span>TRACK TEMP</span>
+                                    <strong>${trackTemp}°C</strong>
+                                </div>
+                                <div class="radar-tele-pill">
+                                    <span>AIR TEMP</span>
+                                    <strong>${airTemp}°C</strong>
+                                </div>
+                                <div class="radar-tele-pill">
+                                    <span>HUMIDITY</span>
+                                    <strong>${humidity}%</strong>
+                                </div>
+                                <div class="radar-tele-pill">
+                                    <span>RAIN PROBABILITY</span>
+                                    <strong>${rainRisk}%</strong>
+                                </div>
+                                <div class="radar-tele-pill">
+                                    <span>WIND</span>
+                                    <strong>${escapeHtml(wind)}</strong>
+                                </div>
+                            </div>
+                            <div class="radar-lock-notice">
+                                🔒 <strong>FIA RULE REGULATION:</strong> Weather conditions are determined automatically based on circuit location, climate geography, and live radar tracking. Manual weather override is disabled.
+                            </div>
                         </div>
                     </div>
 
@@ -261,16 +403,16 @@ class PitwallController {
                                 <span>TACTICAL DILEMMA: PRE-RACE DRIZZLE HAS STOPPED</span>
                             </div>
                             <div class="prerace-dilemma-body">
-                                Track moisture is at <strong>45%</strong> and evaporating quickly.
+                                Track moisture is at <strong>${this.trackMoisture}%</strong> and evaporating quickly.
                                 <br>&bull; <span class="prerace-dilemma-highlight">Option A (Green Inters):</span> Guaranteed grip off the grid (Laps 1-3) with zero wheelspin. <em>However</em>, as the track dries, Inters will overheat and blister in 4-6 laps, forcing an early pit stop (22s loss).
                                 <br>&bull; <span class="prerace-dilemma-risk">Option B (Slicks Gamble - Soft/Medium):</span> High risk of wheelspin and losing 1-2 positions off the line on greasy tarmac. <em>However</em>, if you nurse the car, once the dry line forms on Lap 4, you avoid an early pit stop, lap <strong>3.5s faster</strong> than melting wet tyres, and leapfrog the entire field!
                             </div>
                         </div>
                     ` : ''}
 
-                    <!-- Starting Tyre Compounds Grid -->
+                    <!-- 3. Starting Tyre Compounds Grid -->
                     <div class="prerace-section-label">
-                        <span>2. SELECT STARTING TYRE COMPOUND (PIRELLI 2026)</span>
+                        <span>3. SELECT STARTING TYRE COMPOUND (PIRELLI 2026)</span>
                         <span style="color:var(--cyan); font-size:10px;">CLICK TO INSPECT PREDICTED STINT &amp; PERFORMANCE</span>
                     </div>
 
@@ -300,9 +442,9 @@ class PitwallController {
                     <!-- Summary & Action Bar -->
                     <div class="prerace-summary-bar">
                         <div class="prerace-summary-text">
+                            STARTING GRID: <strong>P${playerPos}</strong> &bull;
                             STARTING TYRE: <strong>${activeCompound.name}</strong> &bull;
-                            STINT ESTIMATE: <strong>${activeCompound.usableLaps}</strong> &bull;
-                            SURFACE: <strong>${this.selectedTrackCondition.toUpperCase()}</strong>
+                            SURFACE: <strong>${this.selectedTrackCondition.toUpperCase()} (AUTO-DETERMINED)</strong>
                         </div>
                         <div class="prerace-action-btns">
                             <button type="button" class="btn-prerace-cancel" onclick="window.pitwall.close()">CANCEL</button>
@@ -422,7 +564,7 @@ class PitwallController {
 
             this._renderFullCockpit();
             pitwallAudio.playRadioChirp();
-            this._addRadioMessage(`RACE ENGINEER: "Radio check, ${this.driverName}. Starting on ${this.tyreCompound} tyres on a ${this.currentWeather} surface. Lights out and away we go!"`);
+            this._addRadioMessage(`RACE ENGINEER: "Radio check, ${this.driverName}. We are starting from P${this.playerPos} on ${this.tyreCompound} tyres on a ${this.currentWeather} surface. Lights out and away we go!"`);
 
             this._startLoop();
         } catch (err) {
@@ -440,12 +582,14 @@ class PitwallController {
     // Initialize stateful live drivers list from starting grid or lap 1 snapshot
     _initLiveDrivers() {
         const lapHistory = this.raceData.lap_history || [];
-        const lap1 = lapHistory.length > 0 ? (lapHistory[0].standings || []) : (this.raceData.classification || []);
+        const initialGrid = (this.raceData.starting_grid && this.raceData.starting_grid.length > 0)
+            ? this.raceData.starting_grid
+            : (lapHistory.length > 0 ? (lapHistory[0].standings || []) : (this.raceData.classification || []));
 
-        this.liveDrivers = lap1.map((d, idx) => {
+        this.liveDrivers = initialGrid.map((d, idx) => {
             const isPlayer = String(d.driver).toLowerCase() === String(this.driverName).toLowerCase();
-            const compound = isPlayer ? this.tyreCompound : (d.compound || "Medium");
-            const pos = d.position || (idx + 1);
+            const compound = isPlayer ? this.tyreCompound : (d.compound || (this.selectedTrackCondition === 'Wet' ? 'Full Wet' : (this.selectedTrackCondition === 'Damp' ? 'Intermediate' : 'Medium')));
+            const pos = d.position || d.grid_position || (idx + 1);
             if (isPlayer) {
                 this.playerPos = pos;
             }
@@ -459,9 +603,9 @@ class PitwallController {
                 tyreWear: 100,
                 gapToLeader: Number(d.gap_to_leader || (idx * 0.45)),
                 gapToAhead: Number(d.gap_to_ahead || (idx === 0 ? 0 : 0.45)),
-                gapTrend: "stable", // "shrinking" | "widening" | "stable"
-                lapTime: Number(d.lap_time || 87.5),
-                bestLap: Number(d.lap_time || 87.5),
+                gapTrend: "stable",
+                lapTime: Number(d.lap_time || d.qualifying_lap_time || 87.5),
+                bestLap: Number(d.lap_time || d.qualifying_lap_time || 87.5),
                 pitStops: Number(d.pit_stops || 0),
                 isPlayer: isPlayer,
                 isLeadChange: false,

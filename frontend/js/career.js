@@ -474,27 +474,34 @@ function renderCareerRaceView(data) {
         `;
     }
 
+    const activeUpcomingQual = (currentRace.status !== "completed" ? currentRace.qualifying : nextRace.qualifying) || data.upcoming_qualifying;
+    const activePlayerPos = activeUpcomingQual && activeUpcomingQual.player_result ? activeUpcomingQual.player_result.position : null;
+    const activeWeather = (currentRace.status !== "completed" ? currentRace.weather_report : nextRace.weather_report) || data.upcoming_weather;
+    const weatherLabel = activeWeather ? `${activeWeather.condition === 'Dry' ? '☀️' : (activeWeather.condition === 'Damp' ? '🌦️' : '🌧️')} ${activeWeather.condition} (${activeWeather.track_temp_c}°C Track)` : null;
+
     container.innerHTML = `
         <div class="career-races-grid">
             <div id="careerCurrentRaceBox" class="career-race-card current" ${currentRace.status === "completed" ? `onclick="openRaceInfoModal('${escapeHtml(currentTeam)}')"` : ""} style="${currentRace.status === "completed" ? "cursor:pointer;" : ""}" title="${currentRace.status === "completed" ? "Click to view full race results & telemetry archive" : ""}">
-                <div class="race-label">${currentRace.status === "completed" ? "LAST COMPLETED RACE (CLICK FOR TELEMETRY)" : "CURRENT ROUND"}</div>
+                <div class="race-label">${currentRace.status === "completed" ? "LAST COMPLETED RACE (CLICK FOR TELEMETRY)" : "CURRENT ROUND · UPCOMING GP"}</div>
                 <h3>R${currentRace.round || 1} · ${escapeHtml(currentRace.circuit || "Grand Prix")}</h3>
-                <div class="race-big">${currentRace.driver_position ? `P${currentRace.driver_position}` : (currentRace.status === "completed" ? "DNF" : "UPCOMING")}</div>
+                <div class="race-big">${currentRace.status === "completed" ? (currentRace.driver_position ? `P${currentRace.driver_position}` : "DNF") : (activePlayerPos ? `GRID P${activePlayerPos}` : "UPCOMING")}</div>
                 <div class="career-race-meta">
                     <span>${escapeHtml(currentRace.country || "Championship")}</span>
-                    <span>${escapeHtml(currentRace.weather || "Dry")}</span>
+                    <span>${weatherLabel ? escapeHtml(weatherLabel) : escapeHtml(currentRace.weather || "Dry")}</span>
                     ${currentRace.driver_points !== undefined ? `<span>Driver: ${Number(currentRace.driver_points).toFixed(0)} pts</span>` : ""}
                     ${currentRace.team_points !== undefined ? `<span>Team: ${Number(currentRace.team_points).toFixed(0)} pts</span>` : ""}
+                    ${!currentRace.completed && activePlayerPos && activeUpcomingQual && activeUpcomingQual.player_result ? `<span style="color:var(--gold);">Qual: ${escapeHtml(activeUpcomingQual.player_result.gap_to_pole || "")}</span>` : ""}
                 </div>
                 ${currentRace.status === "completed" ? `<div style="margin-top:10px; font-family:'Orbitron', monospace; font-size:10px; color:var(--cyan); display:flex; align-items:center; gap:6px;"><span>📊</span> VIEW RACE TELEMETRY &amp; RESULTS &rarr;</div>` : ""}
             </div>
             <div id="careerNextRaceBox" class="career-race-card next">
                 <div class="race-label">NEXT UP ON CALENDAR</div>
                 <h3>${nextRace.round ? `R${nextRace.round} · ${escapeHtml(nextRace.circuit || "Grand Prix")}` : "SEASON COMPLETED"}</h3>
-                <div class="race-big">${nextRace.round ? `ROUND ${nextRace.round}` : "TROPHY READY"}</div>
+                <div class="race-big">${nextRace.round ? (activePlayerPos ? `GRID P${activePlayerPos}` : `ROUND ${nextRace.round}`) : "TROPHY READY"}</div>
                 <div class="career-race-meta">
                     <span>${escapeHtml(nextRace.country || "")}</span>
-                    <span>${escapeHtml(nextRace.weather || "Scheduled")}</span>
+                    <span>${weatherLabel ? escapeHtml(weatherLabel) : escapeHtml(nextRace.weather || "Scheduled")}</span>
+                    ${activePlayerPos && activeUpcomingQual && activeUpcomingQual.player_result ? `<span style="color:var(--gold);">Qual: ${escapeHtml(activeUpcomingQual.player_result.formatted_time || "")}</span>` : ""}
                 </div>
             </div>
         </div>

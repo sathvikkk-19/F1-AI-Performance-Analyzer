@@ -72,15 +72,22 @@ WIN_DEVELOPMENT_BONUS = 3
 # -----------------------------------------------------------------------------
 # Helpers & Database Persistence
 # -----------------------------------------------------------------------------
+def _safe_user_id():
+    try:
+        return session.get("user_id")
+    except RuntimeError:
+        return None
+
+
 def _career_key():
-    user_id = session.get("user_id")
+    user_id = _safe_user_id()
     if user_id is not None:
         return str(user_id)
     return "guest"
 
 
 def _get_career():
-    user_id = session.get("user_id")
+    user_id = _safe_user_id()
     if user_id:
         try:
             db_career = Career.query.filter_by(user_id=user_id).first()
@@ -97,7 +104,7 @@ def _save_career(career_dict):
     key = _career_key()
     CAREERS[key] = career_dict
 
-    user_id = session.get("user_id")
+    user_id = _safe_user_id()
     if user_id and career_dict and career_dict.get("started"):
         try:
             db_career = Career.query.filter_by(user_id=user_id).first()
@@ -459,6 +466,53 @@ def _build_dashboard(career, teams, circuits):
         reverse=True,
     )
 
+    # Ensure upcoming round has simulated qualifying and auto-determined weather
+    upcoming_round = current_round
+    upcoming_qual = None
+    upcoming_weather = None
+
+    if upcoming_round <= len(circuits) and not career.get("season_completed"):
+        upcoming_weekend = career.get("upcoming_weekend") or {}
+        if upcoming_weekend.get("round") != upcoming_round or not upcoming_weekend.get("qualifying"):
+            upcoming_circuit = _next_circuit(circuits, upcoming_round)
+            if upcoming_circuit:
+                weather_report = season_engine.generate_circuit_weather(upcoming_circuit)
+                qual_data = season_engine.qualify_round(
+                    upcoming_round,
+                    circuits=circuits,
+                    teams=teams,
+                    season_year=int(career.get("season", 2026)),
+                    weather_condition=weather_report.get("condition")
+                )
+                player_entry = next(
+                    (g for g in qual_data.get("grid", []) if str(g.get("driver", "")).strip().lower() == str(driver_name).strip().lower()),
+                    None
+                )
+                qual_data["player_result"] = player_entry
+                upcoming_weekend = {
+                    "round": upcoming_round,
+                    "qualifying": qual_data,
+                    "weather": weather_report
+                }
+                career["upcoming_weekend"] = upcoming_weekend
+                _save_career(career)
+
+        upcoming_qual = upcoming_weekend.get("qualifying")
+        upcoming_weather = upcoming_weekend.get("weather")
+
+        if completed_races:
+            if next_race:
+                next_race["qualifying"] = upcoming_qual
+                next_race["weather_report"] = upcoming_weather
+                if upcoming_weather:
+                    next_race["weather"] = upcoming_weather.get("condition", "Dry")
+        else:
+            if current_race:
+                current_race["qualifying"] = upcoming_qual
+                current_race["weather_report"] = upcoming_weather
+                if upcoming_weather:
+                    current_race["weather"] = upcoming_weather.get("condition", "Dry")
+
     return {
         "success": True,
         "started": True,
@@ -474,6 +528,9 @@ def _build_dashboard(career, teams, circuits):
         "driver_comparison": comparison,
         "current_race": current_race,
         "next_race": next_race,
+        "upcoming_qualifying": upcoming_qual,
+        "upcoming_weather": upcoming_weather,
+        "upcoming_weekend": upcoming_weekend,
     }
 
 
@@ -684,9 +741,17 @@ def run_career_race():
     if tactics.get("tactical_success") and tactical_bonus == 0:
         tactical_bonus = 2
 
+    upcoming_weekend = career.get("upcoming_weekend") or {}
+    qual_data = upcoming_weekend.get("qualifying") or {}
+    weather_data = upcoming_weekend.get("weather") or {}
+
+    starting_track_cond = tactics.get("starting_track_condition") or weather_data.get("condition") or "Dry"
+    starting_grid = qual_data.get("starting_grid")
+
     strategy_inputs = {
         "starting_compound": tactics.get("starting_compound"),
-        "starting_track_condition": tactics.get("starting_track_condition"),
+        "starting_track_condition": starting_track_cond,
+        "qualifying_grid": starting_grid,
         "player_driver_id": career.get("driver_id"),
         "player_driver_name": career.get("driver_name"),
     }
@@ -777,6 +842,8 @@ def run_career_race():
     career["season_completed"] = (
         round_number >= len(circuits)
     )
+
+    career["upcoming_weekend"] = None
 
     _save_career(career)
 

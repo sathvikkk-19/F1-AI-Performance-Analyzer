@@ -1050,7 +1050,256 @@
     color: var(--gold);
 }
 
-/* Track Condition Toggles */
+/* Starting Grid & Qualifying Result Section */
+.prerace-grid-section {
+    margin-bottom: 20px;
+}
+
+.grid-official-badge {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.radar-live-badge {
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    color: var(--cyan);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.prerace-grid-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.7));
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.prerace-grid-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.prerace-pos-pill {
+    padding: 8px 16px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+}
+
+.prerace-pos-pill.badge-pos-pole {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.4));
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+}
+
+.prerace-pos-pill.badge-pos-pole .pos-num { color: var(--gold); }
+
+.prerace-pos-pill.badge-pos-p2 {
+    background: linear-gradient(135deg, rgba(226, 232, 240, 0.25), rgba(148, 163, 184, 0.35));
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 0 16px rgba(226, 232, 240, 0.3);
+}
+
+.prerace-pos-pill.badge-pos-p2 .pos-num { color: #f8fafc; }
+
+.prerace-pos-pill.badge-pos-p3 {
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.3), rgba(146, 64, 14, 0.35));
+    border: 2px solid #d97706;
+    box-shadow: 0 0 16px rgba(217, 119, 6, 0.3);
+}
+
+.prerace-pos-pill.badge-pos-p3 .pos-num { color: #fbbf24; }
+
+.prerace-pos-pill.badge-pos-p4,
+.prerace-pos-pill.badge-pos-points {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(14, 116, 144, 0.3));
+    border: 1px solid var(--cyan);
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+}
+
+.prerace-pos-pill.badge-pos-points .pos-num,
+.prerace-pos-pill.badge-pos-p4 .pos-num { color: var(--cyan); }
+
+.prerace-pos-pill.badge-pos-midfield {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.prerace-pos-pill.badge-pos-midfield .pos-num { color: #ffffff; }
+
+.prerace-pos-pill .pos-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.prerace-pos-pill .pos-kicker {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    white-space: nowrap;
+}
+
+.prerace-grid-driver-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.grid-you-tag {
+    background: rgba(245, 158, 11, 0.25);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.prerace-grid-driver-team {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+.prerace-grid-driver-team strong {
+    color: #ffffff;
+}
+
+.prerace-pole-summary {
+    text-align: right;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 20px;
+}
+
+.pole-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    margin-bottom: 4px;
+}
+
+.pole-driver {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.pole-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Starting Grid Rack Lineup */
+.prerace-grid-rack {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.grid-rack-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.grid-slots-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+    gap: 8px;
+}
+
+.grid-slot-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 8px 6px;
+    text-align: center;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.grid-slot-card.slot-is-me {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1.5px solid var(--gold);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+}
+
+.grid-slot-card .slot-pos {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--gold);
+}
+
+.grid-slot-card.slot-is-me .slot-pos {
+    color: #ffffff;
+}
+
+.grid-slot-card .slot-driver {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #cbd5e1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 2px 0;
+}
+
+.grid-slot-card .slot-gap {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+}
+
+.slot-you-pill {
+    position: absolute;
+    top: -6px;
+    right: 4px;
+    background: var(--gold);
+    color: #000;
+    font-family: 'Orbitron', monospace;
+    font-size: 7px;
+    font-weight: 900;
+    padding: 1px 4px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+}
+
+/* FIA Meteorological Radar Report Card */
 .prerace-condition-section {
     margin-bottom: 20px;
 }
@@ -1066,57 +1315,101 @@
     align-items: center;
 }
 
-.prerace-condition-toggles {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+.prerace-radar-report-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(17, 24, 39, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.prerace-radar-report-card.condition-dry {
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+.prerace-radar-report-card.condition-damp {
+    border-color: rgba(56, 189, 248, 0.45);
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.15);
+}
+
+.prerace-radar-report-card.condition-wet {
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.2);
+}
+
+.radar-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.radar-status-pill {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.radar-moisture-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.radar-moisture-badge strong {
+    color: var(--cyan);
+}
+
+.radar-desc-text {
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.45;
     margin-bottom: 14px;
 }
 
-.prerace-cond-btn {
-    padding: 12px 14px;
-    background: rgba(15, 23, 42, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 8px;
-    color: #cbd5e1;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s;
-    font-family: inherit;
+.radar-telemetry-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
 }
 
-.prerace-cond-btn:hover {
-    border-color: rgba(255, 255, 255, 0.35);
-    background: rgba(255, 255, 255, 0.06);
+.radar-tele-pill {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 8px 10px;
+    text-align: center;
 }
 
-.prerace-cond-btn.active {
-    border-color: var(--cyan);
-    background: rgba(6, 182, 212, 0.15);
-    box-shadow: 0 0 16px rgba(6, 182, 212, 0.25);
-    color: #ffffff;
-}
-
-.prerace-cond-btn.active.cond-damp {
-    border-color: #38bdf8;
-    background: rgba(56, 189, 248, 0.18);
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
-}
-
-.prerace-cond-title {
+.radar-tele-pill span {
+    display: block;
     font-family: 'Orbitron', monospace;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
     margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
-.prerace-cond-desc {
+.radar-tele-pill strong {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    color: #f1f5f9;
+}
+
+.radar-lock-notice {
     font-size: 11px;
-    color: var(--text-muted);
-    line-height: 1.35;
+    color: #94a3b8;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--cyan);
+    line-height: 1.4;
 }
 
 /* Tactical Dilemma Banner */
@@ -1463,8 +1756,24 @@
     .prerace-compounds-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    .prerace-condition-toggles {
-        grid-template-columns: 1fr;
+    .prerace-grid-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+    .prerace-pole-summary {
+        text-align: left;
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 10px;
+        width: 100%;
+    }
+    .radar-telemetry-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .grid-slots-row {
+        grid-template-columns: repeat(4, 1fr);
     }
     .pit-compound-pills {
         grid-template-columns: repeat(3, 1fr);

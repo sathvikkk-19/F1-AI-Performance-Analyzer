@@ -637,62 +637,67 @@ class RaceCoordinator:
             )
 
         # =====================================================
-        # QUALIFYING
-        # =====================================================
-
-        qualifying = qualifying_engine.qualify(
-            baseline_entries,
-            circuit,
-            weather=weather
-        )
-
-        qualifying_grid = list(
-            qualifying.get(
-                "starting_grid",
-                []
+        # Check if pre-simulated qualifying grid was supplied via strategy_inputs
+        if strategy_inputs and strategy_inputs.get("qualifying_grid"):
+            qualifying_grid = list(strategy_inputs["qualifying_grid"])
+            grid = []
+            for position, entry in enumerate(qualifying_grid, start=1):
+                row = dict(entry)
+                row["position"] = position
+                row["grid_position"] = position
+                row["race_time"] = 0.0
+                row["gap_to_leader"] = 0.0
+                row["gap_to_ahead"] = 0.0
+                grid.append(row)
+        else:
+            qualifying = qualifying_engine.qualify(
+                baseline_entries,
+                circuit,
+                weather=weather
             )
-        )
 
-        # Apply circuit-specific qualifying adjustment.
-        #
-        # This changes qualifying competitiveness without
-        # permanently modifying the database performance values.
-
-        qualifying_grid = (
-            self._apply_calibrated_qualifying(
-                qualifying_grid,
-                profile,
-                weather
-            )
-        )
-
-        qualifying_grid.sort(
-            key=lambda entry:
-                entry.get(
-                    "qualifying_lap_time",
-                    entry.get(
-                        "position",
-                        999
-                    )
+            qualifying_grid = list(
+                qualifying.get(
+                    "starting_grid",
+                    []
                 )
-        )
+            )
 
-        grid = []
+            qualifying_grid = (
+                self._apply_calibrated_qualifying(
+                    qualifying_grid,
+                    profile,
+                    weather
+                )
+            )
 
-        for position, entry in enumerate(
-            qualifying_grid,
-            start=1
-        ):
+            qualifying_grid.sort(
+                key=lambda entry:
+                    entry.get(
+                        "qualifying_lap_time",
+                        entry.get(
+                            "position",
+                            999
+                        )
+                    )
+            )
 
-            row = dict(entry)
+            grid = []
 
-            row["position"] = position
-            row["grid_position"] = position
-            row["race_time"] = 0.0
-            row["gap_to_leader"] = 0.0
-            row["gap_to_ahead"] = 0.0
+            for position, entry in enumerate(
+                qualifying_grid,
+                start=1
+            ):
 
-            grid.append(row)
+                row = dict(entry)
+
+                row["position"] = position
+                row["grid_position"] = position
+                row["race_time"] = 0.0
+                row["gap_to_leader"] = 0.0
+                row["gap_to_ahead"] = 0.0
+
+                grid.append(row)
 
         grid_size = len(
             grid
@@ -2497,6 +2502,9 @@ class RaceCoordinator:
                     profile
             },
 
+            "starting_grid":
+                grid,
+
             "lap_history":
                 lap_history
         }
@@ -2541,91 +2549,79 @@ class RaceCoordinator:
         profile: Dict[str, Any],
         weather: str
     ) -> List[Dict[str, Any]]:
-
+        """
+        Calibrate qualifying order with authentic F1 field compression,
+        circuit archetype specialization, driver single-lap qualifying mastery,
+        and stochastic push-lap execution (purple sectors vs micro-lockups).
+        """
         result = []
 
+        archetype = str(profile.get("archetype", "mixed")).lower()
+
         for original in qualifying_grid:
+            entry = dict(original)
+            driver_name = str(entry.get("driver", ""))
+            team_name = str(entry.get("team", ""))
 
-            entry = dict(
-                original
+            team_score = self._team_circuit_score(entry, profile)
+            driver_score = self._driver_qualifying_score(
+                entry.get("driver_performance"),
+                driver_name
             )
 
-            team_score = (
-                self._team_circuit_score(
-                    entry,
-                    profile
+            base_time = float(entry.get("qualifying_lap_time", 90.0))
+
+            # Tier baseline: compress the front row so top 4 teams are tightly matched
+            tier = self._team_tier(team_name)
+            if tier == 1:
+                # Top tier (Red Bull, McLaren, Ferrari, Mercedes) in ultra-tight qualifying window
+                adjustment = (0.92 - team_score) * 0.35 + (0.95 - driver_score) * 0.30
+            elif tier == 2:
+                adjustment = (0.88 - team_score) * 0.45 + (0.90 - driver_score) * 0.35 + 0.35
+            elif tier == 3:
+                adjustment = (0.84 - team_score) * 0.50 + (0.86 - driver_score) * 0.38 + 0.75
+            else:
+                adjustment = (0.80 - team_score) * 0.55 + (0.82 - driver_score) * 0.40 + 1.20
+
+            # Driver single-lap qualifying specialists (world-class Saturday execution)
+            specialist_bonus = 0.0
+            if driver_name == "Charles Leclerc":
+                # Legendary qualifying extraction; pole master
+                specialist_bonus = -0.12
+            elif driver_name in ("Lando Norris", "Max Verstappen"):
+                specialist_bonus = -0.10
+            elif driver_name in ("George Russell", "Oscar Piastri"):
+                specialist_bonus = -0.08
+            elif driver_name in ("Lewis Hamilton", "Fernando Alonso"):
+                specialist_bonus = -0.06
+            elif driver_name in ("Alex Albon", "Carlos Sainz", "Nico Hülkenberg"):
+                specialist_bonus = -0.04
+
+            # Circuit archetype synergies
+            archetype_bonus = 0.0
+            if archetype in ("street", "street_technical", "technical"):
+                if team_name in ("Scuderia Ferrari HP", "McLaren Mastercard"):
+                    archetype_bonus = -0.06
+            elif archetype in ("power", "high_speed", "street_high_speed"):
+                if team_name in ("Mercedes-AMG Petronas", "McLaren Mastercard"):
+                    archetype_bonus = -0.05
+
+            # Wet / Mixed conditions skill factor
+            wet_adjustment = 0.0
+            if weather in {"Mixed", "Wet"}:
+                wet_score = self._driver_wet_score(
+                    entry.get("driver_performance"),
+                    driver_name
                 )
-            )
+                wet_adjustment = (0.85 - wet_score) * 0.35
 
-            driver_score = (
-                self._driver_qualifying_score(
-                    entry.get(
-                        "driver_performance"
-                    ),
-                    entry.get(
-                        "driver"
-                    )
-                )
-            )
+            # Dynamic push-lap execution (hooking up all mini-sectors vs slight snap/traffic)
+            push_lap_execution = random.gauss(0, 0.085)
 
-            base_time = float(
-                entry.get(
-                    "qualifying_lap_time",
-                    90.0
-                )
-            )
+            total_delta = adjustment + specialist_bonus + archetype_bonus + wet_adjustment + push_lap_execution
+            entry["qualifying_lap_time"] = round(base_time + total_delta, 3)
 
-            # Better score = lower lap time.
-            #
-            # The adjustment is intentionally moderate because
-            # qualifying_engine already performs the core simulation.
-
-            adjustment = (
-                0.80
-                -
-                team_score
-            ) * 0.75
-
-            adjustment += (
-                0.82
-                -
-                driver_score
-            ) * 0.50
-
-            if weather in {
-                "Mixed",
-                "Wet"
-            }:
-
-                wet_score = (
-                    self._driver_wet_score(
-                        entry.get(
-                            "driver_performance"
-                        ),
-                        entry.get(
-                            "driver"
-                        )
-                    )
-                )
-
-                adjustment += (
-                    0.82
-                    -
-                    wet_score
-                ) * 0.40
-
-            entry[
-                "qualifying_lap_time"
-            ] = round(
-                base_time
-                +
-                adjustment,
-                3
-            )
-
-            result.append(
-                entry
-            )
+            result.append(entry)
 
         return result
 
@@ -4492,15 +4488,11 @@ class RaceCoordinator:
 
     def _get_circuit_profile(
         self,
-        circuit: Dict[str, Any]
+        circuit: Any
     ) -> Dict[str, Any]:
 
-        name = str(
-            circuit.get(
-                "name",
-                ""
-            )
-        )
+        c_dict = self._extract_circuit(circuit)
+        name = str(c_dict.get("name", ""))
 
         if name in self.CIRCUIT_PROFILES:
 
@@ -4522,7 +4514,7 @@ class RaceCoordinator:
             return profile
 
         track_type = str(
-            circuit.get(
+            c_dict.get(
                 "track_type",
                 "Mixed"
             )
@@ -4577,12 +4569,12 @@ class RaceCoordinator:
 
             "qualifying":
                 self._qualifying_importance(
-                    circuit
+                    c_dict
                 ),
 
             "overtaking":
                 self._level(
-                    circuit.get(
+                    c_dict.get(
                         "overtaking_difficulty",
                         "Medium"
                     )
@@ -4604,15 +4596,24 @@ class RaceCoordinator:
 
     def _qualifying_importance(
         self,
-        circuit: Dict[str, Any]
+        circuit: Any
     ) -> float:
 
-        level = str(
-            circuit.get(
-                "overtaking_difficulty",
-                "Medium"
+        if isinstance(circuit, dict):
+            level = str(
+                circuit.get(
+                    "overtaking_difficulty",
+                    "Medium"
+                )
             )
-        )
+        else:
+            level = str(
+                getattr(
+                    circuit,
+                    "overtaking_difficulty",
+                    "Medium"
+                )
+            )
 
         mapping = {
 

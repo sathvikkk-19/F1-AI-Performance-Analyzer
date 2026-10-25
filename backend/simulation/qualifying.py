@@ -1,3 +1,4 @@
+import random
 from typing import Any, Dict, List
 
 
@@ -611,7 +612,7 @@ class QualifyingEngine:
             90.0
             -
             performance
-        ) * 0.17
+        ) * 0.08
 
         # -----------------------------------------------------
         # Circuit base factor
@@ -748,7 +749,7 @@ class QualifyingEngine:
 
         form_variation = (
             form - 0.5
-        ) * 0.42
+        ) * 0.15 + random.gauss(0, 0.065)
 
         # -----------------------------------------------------
         # Weather skill
